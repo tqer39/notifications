@@ -19,18 +19,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 1. **技術スタックの選定**
    - 通知サービスの要件に応じて適切な言語とフレームワークを選択すること
    - 例: Node.js + Express、Python + FastAPI、Go + Gin等
-
 2. **基本的なディレクトリ構造の提案**
-   ```
-   /notifications
-   ├── src/          # ソースコード
-   ├── tests/        # テストコード
-   ├── docs/         # ドキュメント
-   ├── config/       # 設定ファイル
-   └── scripts/      # ビルド・デプロイスクリプト
-   ```
+
+``txt
+/notifications
+├── src/          # ソースコード
+├── tests/        # テストコード
+├── docs/         # ドキュメント
+├── config/       # 設定ファイル
+└── scripts/      # ビルド・デプロイスクリプト
+
+```
 
 3. **通知サービスとして考慮すべき機能**
+
    - 複数の通知チャネル（Email、SMS、Push通知、Webhook等）のサポート
    - メッセージキューイング
    - 配信スケジューリング
@@ -48,3 +50,41 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 5. 環境変数管理の仕組み
 
 現時点では具体的なビルドコマンドやテストコマンドは存在しないため、プロジェクトの技術スタックが決定次第、このファイルを更新してください。
+
+## pre-commitフック
+
+このプロジェクトではpre-commitを使用してコード品質を維持しています。
+
+### セットアップ
+
+```bash
+# pre-commitをインストール
+pip install pre-commit
+
+# gitフックをインストール
+pre-commit install
+```
+
+### 手動実行
+
+```bash
+# すべてのファイルに対してフックを実行
+pre-commit run --all-files
+
+# 特定のフックのみ実行
+pre-commit run <hook-id>
+```
+
+### 設定されているフック
+
+- **check-added-large-files**: 512KB以上のファイルの追加を防止
+- **check-json**: JSONファイルの構文チェック
+- **check-yaml**: YAMLファイルの構文チェック
+- **detect-aws-credentials**: AWSクレデンシャルの検出
+- **detect-private-key**: 秘密鍵の検出
+- **end-of-file-fixer**: ファイル末尾の改行を修正
+- **mixed-line-ending**: 改行コードをLFに統一
+- **trailing-whitespace**: 行末の空白を削除
+- **yamllint**: YAMLファイルのリント
+- **cspell**: スペルチェック
+- **markdownlint-cli2**: Markdownファイルのリント
