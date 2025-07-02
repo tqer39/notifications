@@ -96,6 +96,10 @@
     "nosetests",
     "dmypy",
     "sdist",
-    "MANIFEST"
+    "MANIFEST",
+    "pycache",
+    "xoxb",
+    "Nvbn",
+    "Rlbn"
   ]
 }
