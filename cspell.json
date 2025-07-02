@@ -64,6 +64,18 @@
     "tfstate",
     "tqer",
     "vercel",
-    "Vercel"
+    "Vercel",
+    "gmail",
+    "Gmail",
+    "googleapi",
+    "googleapis",
+    "googleapiclient",
+    "httplib",
+    "oauthlib",
+    "fts",
+    "mrkdwn",
+    "urlsafe",
+    "creds",
+    "elif"
   ]
 }
