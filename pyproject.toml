@@ -50,10 +50,14 @@ select = [
     "N",    # pep8-naming
     "SIM",  # flake8-simplify
 ]
-ignore = []
+ignore = [
+    "W191",  # indentation contains tabs
+    "E101",  # indentation contains mixed spaces and tabs
+]
 
 [tool.ruff.format]
 quote-style = "single"
+indent-style = "tab"
 
 [tool.mypy]
 python_version = "3.13"
