@@ -76,6 +76,26 @@
     "mrkdwn",
     "urlsafe",
     "creds",
-    "elif"
+    "elif",
+    "pytest",
+    "mypy",
+    "ruff",
+    "hatchling",
+    "pycodestyle",
+    "pyflakes",
+    "isort",
+    "pyupgrade",
+    "astral",
+    "capsys",
+    "readouterr",
+    "addopts",
+    "testpaths",
+    "pythonpath",
+    "htmlcov",
+    "nox",
+    "nosetests",
+    "dmypy",
+    "sdist",
+    "MANIFEST"
   ]
 }
