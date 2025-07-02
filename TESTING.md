@@ -1,225 +1,268 @@
-# ローカルテスト手順
+# Local Testing Guide
 
-Gmail to LINE通知システムのローカルテスト手順について説明します。
+This document explains how to test the Gmail to LINE notification system locally.
 
-## 🚀 クイックスタート
+[日本語版](docs/TESTING.ja.md)
 
-### 1. 環境設定
+## 🚀 Quick Start
+
+### 1. Environment Setup
 
 ```bash
-# 1. テスト用環境変数ファイルを作成
+# 1. Create test environment variable file
 cp .env.example .env.test
 
-# 2. .env.testを編集（実際のAPIキーは不要）
-# ファイル内のプレースホルダーはテスト用ダミー値のままでOK
+# 2. Edit .env.test (actual API keys not required)
+# Leave placeholder values as dummy data for testing
 ```
 
-### 2. 全テスト実行
+### 2. Run All Tests
 
 ```bash
-# すべてのテストを実行（推奨）
+# Run all tests (recommended)
 ./scripts/run_tests.sh
 ```
 
-### 3. 個別テスト実行
+### 3. Individual Test Execution
 
 ```bash
-# ユニットテストのみ
+# Unit tests only
 uv run pytest -v
 
-# 静的解析のみ
+# Static analysis only
 uv run ruff check .
 uv run mypy .
 
-# ローカル統合テストのみ
+# Local integration tests only
 uv run python scripts/test_local.py
 ```
 
-## 📋 詳細なテスト手順
+## 📋 Detailed Testing Procedures
 
-### 事前準備
+### Prerequisites
 
-1. **依存関係のインストール**
+1. **Install Dependencies**
 
    ```bash
    uv sync --frozen --all-extras
    ```
 
-2. **環境変数ファイルの準備**
+2. **Environment Variables Setup**
 
    ```bash
-   # .env.testファイルが存在することを確認
+   # Verify .env.test file exists
    ls -la .env.test
 
-   # 存在しない場合は作成
+   # Create if not exists
    cp .env.example .env.test
    ```
 
-### テストの種類
+### Test Types
 
-#### 1. ユニットテスト (pytest)
+#### 1. Unit Tests (pytest)
 
 ```bash
-# 基本実行
+# Basic execution
 uv run pytest
 
-# 詳細出力 + カバレッジ
+# Verbose output with coverage
 uv run pytest -v --cov=src --cov-report=term-missing
 
-# 特定のテストファイル
+# Specific test file
 uv run pytest tests/test_gmail_notifier.py
 
-# 特定のテストケース
+# Specific test case
 uv run pytest tests/test_gmail_notifier.py::TestGmailNotifier::test_init
 ```
 
-**テスト内容:**
+**Test Coverage:**
 
-- Gmail API 操作のテスト
-- LINE Messaging API 操作のテスト
-- Slack API 操作のテスト
-- エラーハンドリングのテスト
+- Gmail API operations testing
+- LINE Messaging API operations testing
+- Slack API operations testing
+- Error handling testing
 
-#### 2. 静的解析
+#### 2. Static Analysis
 
 ```bash
-# コードスタイルチェック
+# Code style check
 uv run ruff check .
 
-# コードフォーマット確認
+# Code format check
 uv run ruff format --check .
 
-# 型チェック
+# Type checking
 uv run mypy .
 ```
 
-#### 3. ローカル統合テスト
+#### 3. Local Integration Tests
 
 ```bash
-# モック環境での統合テスト
+# Integration tests with mock environment
 uv run python scripts/test_local.py
 ```
 
-**テスト内容:**
+**Test Coverage:**
 
-- Gmail → LINE → Slack の完全なワークフローテスト
-- 環境変数の読み込みテスト
-- GitHub Actions出力ファイルのテスト
+- Complete Gmail → LINE → Slack workflow testing
+- Environment variable loading testing
+- GitHub Actions output file testing
 
-## 🔧 トラブルシューティング
+## 🔧 Troubleshooting
 
-### よくある問題と解決方法
+### Common Issues and Solutions
 
-#### 1. `.env.test` ファイルが見つからない
+#### 1. `.env.test` File Not Found
 
 ```bash
-❌ .env.testファイルが見つかりません
+❌ .env.test file not found
 ```
 
-**解決方法:**
+**Solution:**
 
 ```bash
 cp .env.example .env.test
 ```
 
-#### 2. 依存関係のエラー
+#### 2. Dependency Errors
 
 ```bash
 ❌ ModuleNotFoundError: No module named 'xxx'
 ```
 
-**解決方法:**
+**Solution:**
 
 ```bash
-# 依存関係を再インストール
+# Reinstall dependencies
 uv sync --frozen --all-extras
 ```
 
-#### 3. 型チェックエラー
+#### 3. Type Check Errors
 
 ```bash
-❌ mypy エラーが発生
+❌ mypy errors occurred
 ```
 
-**解決方法:**
+**Solution:**
 
-- pyproject.tomlの`[tool.mypy]`設定を確認
-- 必要に応じて型注釈を追加
+- Check `[tool.mypy]` configuration in pyproject.toml
+- Add type annotations as needed
 
-#### 4. テストが失敗する
+#### 4. Test Failures
 
 ```bash
-❌ pytest テストが失敗
+❌ pytest tests failed
 ```
 
-**解決方法:**
+**Solution:**
 
-1. エラーメッセージを確認
-2. モックデータが正しく設定されているか確認
-3. 環境変数が正しく読み込まれているか確認
+1. Check error messages
+2. Verify mock data is correctly configured
+3. Confirm environment variables are properly loaded
 
-## 📊 テストカバレッジ
+## 📊 Test Coverage
 
-現在のテストカバレッジ目標:
+Current test coverage targets:
 
-- **src/gmail_notifier.py**: 90%以上
-- **src/slack_error_handler.py**: 90%以上
-- **全体**: 85%以上
+- **src/gmail_notifier.py**: 90%+
+- **src/slack_error_handler.py**: 90%+
+- **Overall**: 85%+
 
-カバレッジレポートの確認:
+View coverage report:
 
 ```bash
 uv run pytest --cov=src --cov-report=html
 open htmlcov/index.html
 ```
 
-## 🚢 デプロイ前チェックリスト
+## 🚢 Pre-Deployment Checklist
 
-ローカルテストが完了したら、以下を確認してからデプロイしてください:
+After completing local tests, verify the following before deployment:
 
-- [ ] 全てのユニットテストがパス
-- [ ] 静的解析エラーなし
-- [ ] ローカル統合テストが成功
-- [ ] カバレッジが目標値以上
-- [ ] 実際のAPI認証情報がコードに含まれていない
-- [ ] `.env.test` がgitignoreされている
+- [ ] All unit tests pass
+- [ ] No static analysis errors
+- [ ] Local integration tests succeed
+- [ ] Coverage meets target values
+- [ ] No actual API credentials in code
+- [ ] `.env.test` is gitignored
 
-## 🔒 セキュリティ注意事項
+## 🔒 Security Considerations
 
-### 環境変数の管理
+### Environment Variable Management
 
-- **✅ 良い例**: `.env.test` にダミー値を設定
-- **❌ 悪い例**: 実際のAPIキーを `.env.test` に保存
+- **✅ Good**: Set dummy values in `.env.test`
+- **❌ Bad**: Store actual API keys in `.env.test`
 
-### 本番環境のテスト
+### Production Environment Testing
 
-実際のAPIを使用したテストは以下の場合のみ実行:
+Only test with actual APIs in these cases:
 
-1. **Gmail API**: 専用のテストアカウントを使用
-2. **LINE API**: 開発者向けテストチャンネルを使用
-3. **Slack API**: 開発専用ワークスペースを使用
+1. **Gmail API**: Use dedicated test account
+2. **LINE API**: Use developer test channel
+3. **Slack API**: Use development-only workspace
 
-**重要**: 本番アカウントでの直接テストは禁止
+**Important**: Direct testing with production accounts is prohibited
 
-## 📈 CI/CDとの連携
+## 📈 CI/CD Integration
 
-GitHub ActionsではPRごとに自動テストが実行されます:
+GitHub Actions automatically runs tests for each PR:
 
 ```yaml
-# .github/workflows/test.yml で実行される内容
+# Content executed in .github/workflows/test.yml
 - ruff check/format
 - mypy
-- pytest (ユニットテストのみ)
+- pytest (unit tests only)
 ```
 
-ローカルテストはGitHub Actionsテストより包括的です。
+Local testing is more comprehensive than GitHub Actions testing.
 
-## 💡 テスト拡張
+## 💡 Test Extension
 
-新機能追加時のテスト追加方法:
+How to add tests when adding new features:
 
-1. **ユニットテスト**: `tests/test_*.py` に追加
-2. **モックデータ**: `tests/fixtures/mock_data.py` に追加
-3. **統合テスト**: `scripts/test_local.py` に追加
+1. **Unit Tests**: Add to `tests/test_*.py`
+2. **Mock Data**: Add to `tests/fixtures/mock_data.py`
+3. **Integration Tests**: Add to `scripts/test_local.py`
 
-詳細は各ファイルのコメントを参照してください。
+See comments in each file for details.
+
+## Testing Framework Details
+
+### pytest Configuration
+
+The project uses pytest with the following configuration in `pyproject.toml`:
+
+```toml
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-v --strict-markers --strict-config"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests"
+]
+```
+
+### Mock Testing Strategy
+
+- **Gmail API**: Mocked using `tests/fixtures/mock_data.py`
+- **LINE API**: HTTP requests mocked with success/error responses
+- **Slack API**: HTTP requests mocked with appropriate responses
+- **Environment Variables**: Test-specific values in `.env.test`
+
+### Code Quality Tools
+
+- **ruff**: Fast Python linter and formatter (replacing flake8, black, isort)
+- **mypy**: Static type checking with strict configuration
+- **pytest**: Test runner with coverage reporting
+- **pre-commit**: Automated code quality checks before commits
+
+## Local Development Workflow
+
+1. **Setup**: `make setup` - Install dependencies and create virtual environment
+2. **Test**: `make test` - Run unit tests with coverage
+3. **Lint**: `make lint` - Run code quality checks
+4. **Format**: `make format` - Auto-format code
+5. **All Tests**: `make all-tests` - Complete test suite including integration tests
+
+For detailed Makefile commands, run `make help`.

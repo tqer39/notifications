@@ -2,89 +2,336 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## プロジェクト概要
+[日本語版](docs/CLAUDE.ja.md)
 
-このリポジトリは通知サービスを管理するためのプロジェクトです。現在は初期段階にあり、具体的な実装はまだ行われていません。
+## Project Overview
 
-## 現在の状態
+Gmail to LINE Notification System - A GitHub Actions workflow that monitors Gmail for unread emails with the "fts" label and sends notifications to LINE Messaging API when new emails are found.
 
-- **リポジトリステータス**: 初期化済み（`Initial commit`のみ）
-- **ブランチ**: `main`
-- **実装済みファイル**: README.mdのみ
+## Current Technology Stack
 
-## 今後の開発における注意事項
+- **Language**: Python 3.13
+- **Package Manager**: uv
+- **Framework**: None (standalone scripts)
+- **Testing**: pytest with coverage
+- **Linter**: ruff (code style & formatting)
+- **Type Checking**: mypy
+- **CI/CD**: GitHub Actions
+- **Deployment**: GitHub Actions scheduled workflow
 
-### プロジェクトセットアップ時の考慮事項
-
-1. **技術スタックの選定**
-   - 通知サービスの要件に応じて適切な言語とフレームワークを選択すること
-   - 例: Node.js + Express、Python + FastAPI、Go + Gin等
-2. **基本的なディレクトリ構造の提案**
-
-``txt
-/notifications
-├── src/          # ソースコード
-├── tests/        # テストコード
-├── docs/         # ドキュメント
-├── config/       # 設定ファイル
-└── scripts/      # ビルド・デプロイスクリプト
+## Project Structure
 
 ```
+notifications/
+├── .github/workflows/       # GitHub Actions workflows
+│   ├── gmail-to-line-notification.yml  # Main notification workflow
+│   └── test.yml                        # PR testing workflow
+├── src/                     # Source code
+│   ├── __init__.py
+│   ├── gmail_notifier.py    # Gmail + LINE notification logic
+│   └── slack_error_handler.py  # Slack error notifications
+├── tests/                   # Test files
+│   ├── __init__.py
+│   ├── conftest.py
+│   ├── test_gmail_notifier.py
+│   └── test_slack_error_handler.py
+├── scripts/                 # Development scripts
+│   ├── test_local.py        # Local integration testing
+│   └── run_tests.sh         # Test runner
+├── docs/                    # Documentation
+│   ├── README.ja.md
+│   ├── TESTING.ja.md
+│   └── CLAUDE.ja.md
+├── Makefile                 # Development tasks
+├── pyproject.toml          # Python project configuration
+├── .env.example            # Environment variables template
+└── README.md               # Project overview
+```
 
-3. **通知サービスとして考慮すべき機能**
+## Development Commands
 
-   - 複数の通知チャネル（Email、SMS、Push通知、Webhook等）のサポート
-   - メッセージキューイング
-   - 配信スケジューリング
-   - 配信状態の追跡
-   - テンプレート管理
-
-### 開発開始時の推奨事項
-
-新しい機能を実装する際は、まず以下を確認・設定してください：
-
-1. プロジェクトの基本設定ファイル（package.json、requirements.txt等）を作成
-2. リンターとフォーマッター（ESLint、Prettier、Black等）の設定
-3. テストフレームワークの導入
-4. CI/CDパイプラインの設定
-5. 環境変数管理の仕組み
-
-現時点では具体的なビルドコマンドやテストコマンドは存在しないため、プロジェクトの技術スタックが決定次第、このファイルを更新してください。
-
-## pre-commitフック
-
-このプロジェクトではpre-commitを使用してコード品質を維持しています。
-
-### セットアップ
+### Essential Commands
 
 ```bash
-# pre-commitをインストール
+# Initial setup
+make setup
+
+# Run all tests
+make all-tests
+
+# Run unit tests
+make test
+
+# Run static analysis
+make lint
+
+# Format code
+make format
+
+# Run local integration tests
+make local-test
+
+# Show help
+make help
+```
+
+### Direct Execution
+
+```bash
+# Install dependencies
+uv sync --frozen --all-extras
+
+# Run tests
+uv run pytest -v --cov=src
+
+# Run linting
+uv run ruff check .
+uv run ruff format --check .
+uv run mypy .
+
+# Local testing
+uv run python scripts/test_local.py
+```
+
+## API Configuration
+
+This project uses the following APIs:
+
+### Required GitHub Secrets
+
+| Secret Name | Description | How to Obtain |
+|-------------|-------------|---------------|
+| `GOOGLE_CREDENTIALS` | Google Cloud service account credentials | Google Cloud Console |
+| `LINE_CHANNEL_ACCESS_TOKEN` | LINE Messaging API channel token | LINE Developers Console |
+| `LINE_USER_ID` | LINE user ID for notifications | LINE Official Account Manager |
+| `SLACK_BOT_TOKEN` | Slack bot token (for error notifications) | Slack API |
+| `SLACK_CHANNEL_ID` | Slack channel ID | Slack |
+
+### Gmail API Setup
+
+1. Create service account in Google Cloud Console
+2. Enable Gmail API
+3. Grant Gmail read permissions to service account
+4. Set JSON credentials in GitHub Secrets
+
+### LINE Messaging API Setup
+
+1. Create channel in LINE Developers Console
+2. Enable Messaging API
+3. Obtain channel access token
+4. Get user ID
+
+## Coding Standards
+
+### Python Coding Style
+
+- **Indentation**: Hard tabs
+- **Strings**: Single quotes
+- **Line Length**: 120 characters max
+- **Type Annotations**: Required (checked by mypy)
+
+### File Organization Standards
+
+- All Python files must have type hints
+- Docstrings required (Google style)
+- Test files mirror source file structure
+
+### Git Commit Standards
+
+- Commit messages in English
+- Conventional Commits format recommended
+- One feature per commit
+
+## Testing Strategy
+
+### Unit Tests
+
+- Uses pytest
+- 85%+ coverage required
+- Mock API calls for testing
+
+### Integration Tests
+
+- `scripts/test_local.py` for complete workflow testing
+- No actual API calls, only mocked operations
+
+### Static Analysis
+
+- ruff: Code style and formatting
+- mypy: Type checking (strict configuration)
+
+## Deployment
+
+### Automated Deployment
+
+- GitHub Actions runs automatically every hour at minute 0
+- Manual triggering also available
+
+### Environments
+
+- **Production**: Workflow execution on GitHub Actions
+- **Testing**: Local environment with mocked tests
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Gmail API Authentication Error**
+   - Check service account permissions
+   - Verify JSON credentials format
+
+2. **LINE Notifications Not Received**
+   - Verify channel access token
+   - Confirm user ID
+
+3. **Test Failures**
+   - Check `.env.test` file exists
+   - Verify mock data configuration
+
+### Log Checking
+
+- GitHub Actions: Check workflow execution logs in Actions tab
+- Local: Run `uv run python scripts/test_local.py` for debugging
+
+## Pre-commit Hooks
+
+This project uses pre-commit to maintain code quality.
+
+### Setup
+
+```bash
+# Install pre-commit
 pip install pre-commit
 
-# gitフックをインストール
+# Install git hooks
 pre-commit install
 ```
 
-### 手動実行
+### Manual Execution
 
 ```bash
-# すべてのファイルに対してフックを実行
+# Run hooks on all files
 pre-commit run --all-files
 
-# 特定のフックのみ実行
+# Run specific hook only
 pre-commit run <hook-id>
 ```
 
-### 設定されているフック
+### Configured Hooks
 
-- **check-added-large-files**: 512KB以上のファイルの追加を防止
-- **check-json**: JSONファイルの構文チェック
-- **check-yaml**: YAMLファイルの構文チェック
-- **detect-aws-credentials**: AWSクレデンシャルの検出
-- **detect-private-key**: 秘密鍵の検出
-- **end-of-file-fixer**: ファイル末尾の改行を修正
-- **mixed-line-ending**: 改行コードをLFに統一
-- **trailing-whitespace**: 行末の空白を削除
-- **yamllint**: YAMLファイルのリント
-- **cspell**: スペルチェック
-- **markdownlint-cli2**: Markdownファイルのリント
+- **check-added-large-files**: Prevent files larger than 512KB
+- **check-json**: JSON syntax validation
+- **check-yaml**: YAML syntax validation
+- **detect-aws-credentials**: AWS credential detection
+- **detect-private-key**: Private key detection (excludes test files)
+- **end-of-file-fixer**: Fix file endings
+- **mixed-line-ending**: Standardize line endings to LF
+- **trailing-whitespace**: Remove trailing whitespace
+- **yamllint**: YAML file linting
+- **cspell**: Spell checking
+- **markdownlint-cli2**: Markdown file linting
+- **textlint**: Japanese text linting
+- **shellcheck**: Shell script linting
+- **prettier**: YAML/JSON file formatting
+- **actionlint**: GitHub Actions workflow linting
+- **ruff**: Python code linting and formatting
+- **mypy**: Python type checking
+
+## Adding New Features
+
+1. **Create Branch**: `git checkout -b feature/feature-name`
+2. **Implementation**: Follow coding standards
+3. **Add Tests**: Add unit and integration tests
+4. **Local Testing**: Run `make all-tests`
+5. **Commit**: Follow commit standards
+6. **Pull Request**: Create PR on GitHub
+7. **CI Verification**: Ensure GitHub Actions CI/CD passes
+
+## Security Considerations
+
+- Never hardcode credentials in code
+- Use GitHub Secrets
+- Always use mocks for testing
+- Regularly rotate access tokens
+
+## Architecture Notes
+
+### Gmail Integration
+
+- Uses service account authentication
+- Searches for emails with "fts" label
+- Processes only unread emails
+- Marks emails as read after processing
+
+### LINE Integration
+
+- Sends formatted notifications
+- Includes email subject, sender, and body
+- Error handling for failed deliveries
+
+### Slack Integration
+
+- Error notifications only
+- Includes workflow details and error messages
+- Links to GitHub Actions for troubleshooting
+
+### Error Handling
+
+- Comprehensive try-catch blocks
+- Detailed error logging
+- Slack notifications for failures
+- GitHub Actions output for debugging
+
+## Mock Testing Strategy
+
+### Gmail API Mocking
+
+- Uses `tests/fixtures/mock_data.py`
+- Simulates various email formats (plain text, multipart)
+- Tests error conditions
+
+### LINE API Mocking
+
+- Mocks HTTP requests and responses
+- Tests both success and error scenarios
+- Validates message formatting
+
+### Slack API Mocking
+
+- Mocks error notification sending
+- Tests proper error message formatting
+- Validates channel and token usage
+
+## Development Workflow
+
+1. **Setup**: Clone repo and run `make setup`
+2. **Development**: Make changes following coding standards
+3. **Testing**: Run `make all-tests` frequently
+4. **Pre-commit**: Hooks run automatically on commit
+5. **PR**: Create pull request for review
+6. **CI/CD**: GitHub Actions runs tests automatically
+7. **Merge**: Merge after CI passes and review approval
+
+## Reference Documentation
+
+- [Gmail API Documentation](https://developers.google.com/gmail/api)
+- [LINE Messaging API Documentation](https://developers.line.biz/en/reference/messaging-api/)
+- [Slack API Documentation](https://api.slack.com/)
+- [GitHub Actions Documentation](https://docs.github.com/en/actions)
+- [pytest Documentation](https://docs.pytest.org/)
+- [ruff Documentation](https://docs.astral.sh/ruff/)
+- [mypy Documentation](https://mypy.readthedocs.io/)
+
+## Performance Considerations
+
+- Efficient Gmail API queries with labels
+- Batch processing for multiple emails
+- Minimal API calls to reduce rate limiting
+- Error retry mechanisms with exponential backoff
+
+## Monitoring and Alerts
+
+- GitHub Actions workflow status
+- Slack error notifications
+- Email processing logs
+- API rate limit monitoring
