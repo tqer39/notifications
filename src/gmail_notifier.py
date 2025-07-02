@@ -44,7 +44,7 @@ class GmailNotifier:
 				id=msg_id
 			).execute()
 
-			return message
+			return message  # type: ignore[no-any-return]
 
 		except Exception as e:
 			print(f"Error fetching emails: {str(e)}")
