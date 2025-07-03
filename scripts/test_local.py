@@ -6,6 +6,7 @@ import os
 import sys
 import tempfile
 from pathlib import Path
+from typing import Any, Dict, Optional
 from unittest.mock import MagicMock, patch
 
 # プロジェクトルートを追加
@@ -15,7 +16,7 @@ sys.path.insert(0, str(project_root))
 from src.gmail_notifier import GmailNotifier, LineNotifier, SlackNotifier  # noqa: E402
 
 
-def load_test_env():
+def load_test_env() -> None:
 	"""テスト用環境変数を読み込み"""
 	env_file = project_root / '.env.test'
 	if not env_file.exists():
@@ -32,7 +33,7 @@ def load_test_env():
 	print('✅ テスト用環境変数を読み込みました')
 
 
-def test_gmail_notifier():
+def test_gmail_notifier() -> Optional[Dict[str, Any]]:
 	"""Gmail通知のテスト"""
 	print('\n🔍 Gmail通知のテスト開始...')
 
@@ -75,7 +76,7 @@ def test_gmail_notifier():
 			return None
 
 
-def test_line_notifier(email_content):
+def test_line_notifier(email_content: Dict[str, Any]) -> None:
 	"""LINE通知のテスト"""
 	print('\n📱 LINE通知のテスト開始...')
 
@@ -98,7 +99,7 @@ def test_line_notifier(email_content):
 		print(f'   📋 データ: {json.dumps(call_args.kwargs.get("json", {}), ensure_ascii=False, indent=2)}')
 
 
-def test_slack_notifier():
+def test_slack_notifier() -> None:
 	"""Slack通知のテスト"""
 	print('\n💬 Slack通知のテスト開始...')
 
@@ -122,7 +123,7 @@ def test_slack_notifier():
 		print(f'   📋 データ: {json.dumps(call_args.kwargs.get("json", {}), ensure_ascii=False, indent=2)}')
 
 
-def test_main_workflow():
+def test_main_workflow() -> None:
 	"""メインワークフローのテスト"""
 	print('\n🔄 メインワークフロー統合テスト...')
 
@@ -172,7 +173,7 @@ def test_main_workflow():
 		os.unlink(f.name)
 
 
-def main():
+def main() -> None:
 	"""メインテスト関数"""
 	print('🧪 ローカルテスト開始')
 	print('=' * 50)

@@ -16,7 +16,7 @@ A GitHub Actions workflow that monitors Gmail for specific labeled emails and se
 
 ### Prerequisites
 
-- Google Cloud account with Gmail API enabled
+- Google account with Gmail API enabled
 - LINE Developers account with Messaging API channel
 - Slack workspace with bot token (for error notifications)
 - GitHub repository with Actions enabled
@@ -36,7 +36,7 @@ A GitHub Actions workflow that monitors Gmail for specific labeled emails and se
 
    | Secret Name | Description |
    |------------|-------------|
-   | `GOOGLE_CREDENTIALS` | Google Cloud service account JSON |
+   | `GOOGLE_OAUTH_TOKEN` | Google OAuth 2.0 credentials token (base64 encoded) |
    | `LINE_CHANNEL_ACCESS_TOKEN` | LINE Messaging API channel token |
    | `LINE_USER_ID` | Target LINE user ID |
    | `SLACK_BOT_TOKEN` | Slack bot token (xoxb-...) |
@@ -48,22 +48,24 @@ A GitHub Actions workflow that monitors Gmail for specific labeled emails and se
 
 ## Configuration
 
-### Google Cloud Setup
+### Google OAuth Setup
 
-1. **Create a Service Account**
+1. **Create OAuth 2.0 Credentials**
    - Go to [Google Cloud Console](https://console.cloud.google.com)
-   - Navigate to IAM & Admin > Service Accounts
-   - Create a new service account
-   - Download the JSON key file
+   - Navigate to APIs & Services > Credentials
+   - Click "Create Credentials" > "OAuth 2.0 Client ID"
+   - Choose "Desktop application" type
+   - Download the JSON credentials file
 
 2. **Enable Gmail API**
    - Go to APIs & Services > Library
    - Search for "Gmail API"
    - Enable the API
 
-3. **Grant Permissions**
-   - Add Gmail API read access to the service account
-   - Share your Gmail account with the service account email
+3. **Generate OAuth Token**
+   - Run the setup script: `python scripts/setup_oauth.py <oauth_credentials.json>`
+   - Follow the authorization flow in your browser
+   - Copy the generated base64 token to GitHub Secrets as `GOOGLE_OAUTH_TOKEN`
 
 ### LINE Messaging API Setup
 
@@ -151,7 +153,7 @@ For detailed testing instructions, see [TESTING.md](TESTING.md).
 
 ### Email Processing Flow
 
-1. Connect to Gmail API using service account
+1. Connect to Gmail API using OAuth 2.0 credentials
 2. Search for unread emails with "fts" label
 3. Retrieve the first unread email (if any)
 4. Extract email content (subject, sender, body)
@@ -186,7 +188,7 @@ If any step fails:
 
 | Issue | Solution |
 |-------|----------|
-| Gmail API authentication fails | Check service account permissions and Gmail API enablement |
+| Gmail API authentication fails | Check OAuth 2.0 token validity and Gmail API enablement |
 | LINE notification not received | Verify channel access token and user ID |
 | Slack error notification fails | Confirm bot token has `chat:write` scope |
 | No emails found | Ensure emails have "fts" label and are unread |
@@ -197,6 +199,7 @@ If any step fails:
 2. Verify all secrets are correctly set
 3. Test with `make local-test` for local debugging
 4. Review error messages in Slack notifications
+5. Regenerate OAuth token if authentication fails
 
 ## Contributing
 
@@ -211,7 +214,8 @@ If any step fails:
 - Never commit credentials to the repository
 - Use GitHub Secrets for all sensitive data
 - Regularly rotate access tokens
-- Review service account permissions
+- Review OAuth application permissions
+- Keep OAuth credentials JSON file secure
 
 ## License
 

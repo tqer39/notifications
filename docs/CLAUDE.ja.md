@@ -99,7 +99,7 @@ uv run python scripts/test_local.py
 
 | Secret名 | 説明 | 取得方法 |
 |----------|------|----------|
-| `GOOGLE_CREDENTIALS` | Google Cloud サービスアカウント認証情報 | Google Cloud Console |
+| `GOOGLE_OAUTH_TOKEN` | Google OAuth 2.0認証トークン（base64エンコード） | OAuth認証フロー |
 | `LINE_CHANNEL_ACCESS_TOKEN` | LINE Messaging API チャンネルトークン | LINE Developers Console |
 | `LINE_USER_ID` | 通知送信先のLINEユーザーID | LINE Official Account Manager |
 | `SLACK_BOT_TOKEN` | Slack ボットトークン（エラー通知用） | Slack API |
@@ -107,10 +107,11 @@ uv run python scripts/test_local.py
 
 ### Gmail API設定
 
-1. Google Cloud Consoleでサービスアカウント作成
+1. Google Cloud ConsoleでOAuth 2.0クライアントID作成
 2. Gmail API有効化
-3. サービスアカウントにGmail読み取り権限付与
-4. JSON認証情報をGitHub Secretsに設定
+3. デスクトップアプリケーションタイプで認証情報作成
+4. `python scripts/setup_oauth.py <oauth_credentials.json>`でトークン生成
+5. 生成されたbase64トークンをGitHub Secretsに設定
 
 ### LINE Messaging API設定
 
@@ -175,8 +176,8 @@ uv run python scripts/test_local.py
 ### よくある問題
 
 1. **Gmail API認証エラー**
-   - サービスアカウント権限確認
-   - JSON認証情報の形式確認
+   - OAuth 2.0トークンの有効性確認
+   - トークン再生成の実行
 
 2. **LINE通知が届かない**
    - チャンネルアクセストークン確認

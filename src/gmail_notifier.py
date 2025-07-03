@@ -196,6 +196,14 @@ class SlackNotifier:
 def main() -> None:
 	"""Main function to process Gmail notifications."""
 	try:
+		# Check if running in sandbox mode
+		sandbox_mode = os.environ.get('SANDBOX_MODE', 'false').lower() == 'true'
+
+		if sandbox_mode:
+			print('🧪 Running in SANDBOX mode')
+		else:
+			print('🚀 Running in PRODUCTION mode')
+
 		# Initialize services
 		oauth_token = os.environ.get('GOOGLE_OAUTH_TOKEN')
 		oauth_credentials = os.environ.get('GOOGLE_OAUTH_CREDENTIALS')
@@ -208,19 +216,28 @@ def main() -> None:
 
 		if message:
 			email_content = gmail_notifier.extract_email_content(message)
+
+			# Add sandbox prefix to notification if in sandbox mode
+			if sandbox_mode:
+				email_content['subject'] = f'[SANDBOX] {email_content["subject"]}'
+
 			line_notifier.send_notification(email_content)
 			gmail_notifier.mark_as_read(email_content['id'])
+
+			status_msg = 'success_sandbox' if sandbox_mode else 'success'
 			with open(os.environ.get('GITHUB_OUTPUT', '/dev/null'), 'a') as f:
-				f.write('status=success\n')
+				f.write(f'status={status_msg}\n')
 		else:
 			print('No new emails to process')
+			status_msg = 'no_emails_sandbox' if sandbox_mode else 'no_emails'
 			with open(os.environ.get('GITHUB_OUTPUT', '/dev/null'), 'a') as f:
-				f.write('status=no_emails\n')
+				f.write(f'status={status_msg}\n')
 
 	except Exception as e:
 		print(f'Error in main process: {str(e)}')
+		sandbox_suffix = '_sandbox' if os.environ.get('SANDBOX_MODE', 'false').lower() == 'true' else ''
 		with open(os.environ.get('GITHUB_OUTPUT', '/dev/null'), 'a') as f:
-			f.write('status=failed\n')
+			f.write(f'status=failed{sandbox_suffix}\n')
 		raise
 
 
