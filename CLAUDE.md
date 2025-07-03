@@ -335,3 +335,30 @@ pre-commit run <hook-id>
 - Slack error notifications
 - Email processing logs
 - API rate limit monitoring
+
+## Development Diary
+
+When making significant changes to the codebase, maintain a development diary in `docs/dev-diary/YYYY-MM-DD.md` format.
+
+### Purpose
+
+- Record major changes and their rationale
+- Document technical decisions and implementation details
+- Track issues encountered and their solutions
+- Provide context for future developers
+
+### Format
+
+Each diary entry should include:
+
+- **Overview**: Brief summary of the work
+- **Implementation Details**: Technical changes made
+- **Test Results**: Verification of changes
+- **Issues and Solutions**: Problems encountered and how they were resolved
+- **Future Considerations**: Next steps or improvements needed
+- **Mood**: Developer's feelings, learnings, and reflections during the work
+- **Refactoring Opportunities**: Areas of code that could be improved or restructured
+
+### Example
+
+See `docs/dev-diary/2025-07-03.md` for the OAuth 2.0 authentication migration example.

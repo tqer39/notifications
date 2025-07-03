@@ -102,6 +102,7 @@
     "Nvbn",
     "Rlbn",
     "conftest",
-    "Docstrings"
+    "Docstrings",
+    "dataclass"
   ]
 }

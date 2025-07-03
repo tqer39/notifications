@@ -258,3 +258,30 @@ pre-commit run <hook-id>
 - [LINE Messaging API Documentation](https://developers.line.biz/en/reference/messaging-api/)
 - [Slack API Documentation](https://api.slack.com/)
 - [GitHub Actions Documentation](https://docs.github.com/en/actions)
+
+## 開発日誌
+
+コードベースに重要な変更を加える際は、`docs/dev-diary/YYYY-MM-DD.md` 形式で開発日誌を記録してください。
+
+### 目的
+
+- 主要な変更とその理由を記録
+- 技術的な決定と実装の詳細を文書化
+- 遭遇した問題とその解決策を追跡
+- 将来の開発者のためのコンテキストを提供
+
+### 形式
+
+各日誌エントリには以下を含める：
+
+- **概要**: 作業の簡潔な要約
+- **実装詳細**: 行った技術的変更
+- **テスト結果**: 変更の検証
+- **問題と解決策**: 遭遇した問題とその解決方法
+- **今後の検討事項**: 次のステップや必要な改善
+- **気分**: 作業中の開発者の感情、学び、振り返り
+- **リファクタリングできそうな余地**: 改善や再構築が可能なコード領域
+
+### 例
+
+OAuth 2.0認証移行の例については `docs/dev-diary/2025-07-03.md` を参照してください。
