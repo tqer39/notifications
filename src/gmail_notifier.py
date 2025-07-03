@@ -83,15 +83,15 @@ class GmailNotifier:
 
 		return creds  # type: ignore[no-any-return]
 
-	def get_unread_fts_emails(self, user_id: str = 'me') -> dict[str, Any] | None:
-		"""Fetch unread emails with 'fts' label."""
+	def get_unread_family_package_emails(self, user_id: str = 'me') -> dict[str, Any] | None:
+		"""Fetch unread emails with 'Family/お荷物滞留お知らせメール' label."""
 		try:
-			query = 'label:fts is:unread'
+			query = 'label:"Family/お荷物滞留お知らせメール" is:unread'
 			results = self.service.users().messages().list(userId=user_id, q=query, maxResults=1).execute()
 
 			messages = results.get('messages', [])
 			if not messages:
-				print("No unread emails with 'fts' label found.")
+				print("No unread emails with 'Family/お荷物滞留お知らせメール' label found.")
 				return None
 
 			# Get details of the first message
@@ -212,7 +212,7 @@ def main() -> None:
 		line_notifier = LineNotifier(os.environ['LINE_CHANNEL_ACCESS_TOKEN'], os.environ['LINE_USER_ID'])
 
 		# Check for unread emails
-		message = gmail_notifier.get_unread_fts_emails()
+		message = gmail_notifier.get_unread_family_package_emails()
 
 		if message:
 			email_content = gmail_notifier.extract_email_content(message)

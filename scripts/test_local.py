@@ -62,7 +62,7 @@ def test_gmail_notifier() -> Optional[Dict[str, Any]]:
 
 		# テスト実行
 		notifier = GmailNotifier(oauth_token=os.environ.get('GOOGLE_OAUTH_TOKEN'))
-		message = notifier.get_unread_fts_emails()
+		message = notifier.get_unread_family_package_emails()
 
 		if message:
 			email_content = notifier.extract_email_content(message)
