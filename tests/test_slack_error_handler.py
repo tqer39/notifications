@@ -39,7 +39,16 @@ class TestSlackErrorHandler:
 		assert body['mrkdwn'] is True
 
 	@responses.activate
-	@patch.dict(os.environ, {'SLACK_BOT_TOKEN': 'test_token', 'SLACK_CHANNEL_ID': 'test_channel'})
+	@patch.dict(
+		os.environ,
+		{
+			'SLACK_BOT_TOKEN': 'test_token',
+			'SLACK_CHANNEL_ID': 'test_channel',
+			'GITHUB_REPOSITORY': '',
+			'GITHUB_RUN_ID': '',
+		},
+		clear=True,
+	)
 	def test_send_slack_error_notification_no_github_info(self):
 		"""Test error notification without GitHub info."""
 		responses.add(responses.POST, 'https://slack.com/api/chat.postMessage', json={'ok': True}, status=200)
@@ -50,7 +59,10 @@ class TestSlackErrorHandler:
 		request = responses.calls[0].request
 		body_str = request.body.decode('utf-8') if isinstance(request.body, bytes) else request.body
 		body = json.loads(body_str) if body_str else {}
-		assert 'https://github.com//actions/runs/' in body['text']
+		# Check that the message contains the expected GitHub URL pattern
+		expected_url = 'https://github.com//actions/runs/'
+		actual_text = body['text']
+		assert expected_url in actual_text, f"Expected '{expected_url}' in '{actual_text}'"
 
 	@responses.activate
 	@patch.dict(os.environ, {'SLACK_BOT_TOKEN': 'test_token', 'SLACK_CHANNEL_ID': 'test_channel'})
