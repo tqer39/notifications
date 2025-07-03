@@ -372,7 +372,7 @@ dmypy.json
 .ruff_cache/
 
 # uv
-uv.lock
+# uv.lock - commented out as it's needed for CI
 .python-version
 
 # Environment files
