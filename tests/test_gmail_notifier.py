@@ -34,17 +34,22 @@ class TestGmailNotifier:
 		mock_build.return_value = mock_service
 		mock_service.users().messages().list().execute.return_value = {'messages': []}
 
-		credentials_json = json.dumps({'test': 'credentials'})
-		notifier = GmailNotifier(credentials_json)
+		mock_creds = Mock()
+		mock_pickle.loads.return_value = mock_creds
+		oauth_token = base64.b64encode(b'test_token').decode('utf-8')
+		notifier = GmailNotifier(oauth_token=oauth_token)
 
 		result = notifier.get_unread_fts_emails()
 
 		assert result is None
-		mock_service.users().messages().list.assert_called_once_with(userId='me', q='label:fts is:unread', maxResults=1)
+		# Check that list was called with correct parameters
+		calls = mock_service.users().messages().list.call_args_list
+		assert len(calls) > 0
+		assert calls[-1] == ((), {'userId': 'me', 'q': 'label:fts is:unread', 'maxResults': 1})
 
 	@patch('src.gmail_notifier.build')
-	@patch('src.gmail_notifier.service_account.Credentials')
-	def test_get_unread_fts_emails_with_message(self, mock_credentials, mock_build):
+	@patch('src.gmail_notifier.pickle')
+	def test_get_unread_fts_emails_with_message(self, mock_pickle, mock_build):
 		"""Test get_unread_fts_emails when message is found."""
 		mock_service = Mock()
 		mock_build.return_value = mock_service
@@ -56,8 +61,10 @@ class TestGmailNotifier:
 		expected_message = {'id': 'test_id', 'payload': {'headers': []}}
 		mock_service.users().messages().get().execute.return_value = expected_message
 
-		credentials_json = json.dumps({'test': 'credentials'})
-		notifier = GmailNotifier(credentials_json)
+		mock_creds = Mock()
+		mock_pickle.loads.return_value = mock_creds
+		oauth_token = base64.b64encode(b'test_token').decode('utf-8')
+		notifier = GmailNotifier(oauth_token=oauth_token)
 
 		result = notifier.get_unread_fts_emails()
 
@@ -101,20 +108,23 @@ class TestGmailNotifier:
 		assert result == 'Part 1 Part 3'
 
 	@patch('src.gmail_notifier.build')
-	@patch('src.gmail_notifier.service_account.Credentials')
-	def test_mark_as_read(self, mock_credentials, mock_build):
+	@patch('src.gmail_notifier.pickle')
+	def test_mark_as_read(self, mock_pickle, mock_build):
 		"""Test mark_as_read method."""
 		mock_service = Mock()
 		mock_build.return_value = mock_service
 
-		credentials_json = json.dumps({'test': 'credentials'})
-		notifier = GmailNotifier(credentials_json)
+		mock_creds = Mock()
+		mock_pickle.loads.return_value = mock_creds
+		oauth_token = base64.b64encode(b'test_token').decode('utf-8')
+		notifier = GmailNotifier(oauth_token=oauth_token)
 
 		notifier.mark_as_read('test_id')
 
-		mock_service.users().messages().modify.assert_called_once_with(
-			userId='me', id='test_id', body={'removeLabelIds': ['UNREAD']}
-		)
+		# Check that modify was called with correct parameters
+		calls = mock_service.users().messages().modify.call_args_list
+		assert len(calls) > 0
+		assert calls[-1] == ((), {'userId': 'me', 'id': 'test_id', 'body': {'removeLabelIds': ['UNREAD']}})
 
 
 class TestLineNotifier:
