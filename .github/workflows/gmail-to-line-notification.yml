@@ -37,7 +37,7 @@ jobs:
         id: gmail_check
         env:
           GOOGLE_OAUTH_TOKEN: ${{ secrets.GOOGLE_OAUTH_TOKEN }}
-          LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
+          LINE_CHANNEL_ACCESS_TOKEN: ${{ (github.event_name == 'workflow_dispatch' && inputs.sandbox == 'true') && secrets.LINE_CHANNEL_ACCESS_TOKEN_SANDBOX || secrets.LINE_CHANNEL_ACCESS_TOKEN }}
           LINE_USER_ID: ${{ (github.event_name == 'workflow_dispatch' && inputs.sandbox == 'true') && secrets.LINE_USER_ID_SANDBOX || secrets.LINE_USER_ID }}
           SANDBOX_MODE: ${{ (github.event_name == 'workflow_dispatch' && inputs.sandbox == 'true') && 'true' || 'false' }}
         run: uv run python -m src.gmail_notifier
