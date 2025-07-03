@@ -14,8 +14,8 @@
 
 ### 必要な GitHub Secrets
 
-1. **GOOGLE_CREDENTIALS**
-   - Google Cloud サービスアカウントの認証情報（JSON形式）
+1. **GOOGLE_OAUTH_TOKEN**
+   - Google OAuth 2.0 認証トークン（base64エンコード形式）
    - 必要な権限: Gmail API 読み取りアクセス
    - Google Cloud Console で Gmail API を有効化
 
@@ -41,12 +41,14 @@
 - 毎時0分に自動実行 (cron: `0 * * * *`)
 - workflow_dispatch による手動実行
 
-### Google Cloud の設定
+### Google OAuth の設定
 
-1. Google Cloud Console でサービスアカウントを作成
-2. Gmail API を有効化
-3. サービスアカウントの認証情報 JSON をダウンロード
-4. JSON の内容を GitHub Secrets の `GOOGLE_CREDENTIALS` に追加
+1. Google Cloud Console で OAuth 2.0 クライアント ID を作成
+2. アプリケーションの種類を「デスクトップアプリケーション」に設定
+3. 認証情報 JSON をダウンロード
+4. `python scripts/setup_oauth.py <oauth_credentials.json>` を実行
+5. ブラウザで認証フローを完了
+6. 生成された base64 トークンを GitHub Secrets の `GOOGLE_OAUTH_TOKEN` に追加
 
 ### LINE の設定
 
