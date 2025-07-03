@@ -379,3 +379,8 @@ uv.lock
 .env
 .env.local
 .env.test
+
+# OAuth token files
+token.pickle
+oauth_credentials.json
+client_secret_*.json
