@@ -9,7 +9,7 @@ on:
       sandbox:
         description: 'Run in sandbox mode (use sandbox LINE channel)'
         required: false
-        default: 'true'
+        default: true
         type: boolean
 
 jobs:
