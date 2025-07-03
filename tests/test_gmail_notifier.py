@@ -28,8 +28,8 @@ class TestGmailNotifier:
 
 	@patch('src.gmail_notifier.build')
 	@patch('src.gmail_notifier.pickle')
-	def test_get_unread_fts_emails_no_messages(self, mock_pickle, mock_build):
-		"""Test get_unread_fts_emails when no messages found."""
+	def test_get_unread_family_package_emails_no_messages(self, mock_pickle, mock_build):
+		"""Test get_unread_family_package_emails when no messages found."""
 		mock_service = Mock()
 		mock_build.return_value = mock_service
 		mock_service.users().messages().list().execute.return_value = {'messages': []}
@@ -39,18 +39,18 @@ class TestGmailNotifier:
 		oauth_token = base64.b64encode(b'test_token').decode('utf-8')
 		notifier = GmailNotifier(oauth_token=oauth_token)
 
-		result = notifier.get_unread_fts_emails()
+		result = notifier.get_unread_family_package_emails()
 
 		assert result is None
 		# Check that list was called with correct parameters
 		calls = mock_service.users().messages().list.call_args_list
 		assert len(calls) > 0
-		assert calls[-1] == ((), {'userId': 'me', 'q': 'label:fts is:unread', 'maxResults': 1})
+		assert calls[-1] == ((), {'userId': 'me', 'q': 'label:"Family/お荷物滞留お知らせメール" is:unread', 'maxResults': 1})
 
 	@patch('src.gmail_notifier.build')
 	@patch('src.gmail_notifier.pickle')
-	def test_get_unread_fts_emails_with_message(self, mock_pickle, mock_build):
-		"""Test get_unread_fts_emails when message is found."""
+	def test_get_unread_family_package_emails_with_message(self, mock_pickle, mock_build):
+		"""Test get_unread_family_package_emails when message is found."""
 		mock_service = Mock()
 		mock_build.return_value = mock_service
 
@@ -66,7 +66,7 @@ class TestGmailNotifier:
 		oauth_token = base64.b64encode(b'test_token').decode('utf-8')
 		notifier = GmailNotifier(oauth_token=oauth_token)
 
-		result = notifier.get_unread_fts_emails()
+		result = notifier.get_unread_family_package_emails()
 
 		assert result == expected_message
 		# Check that get was called with correct parameters
