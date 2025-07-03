@@ -37,7 +37,7 @@ def test_gmail_notifier():
 	print('\n🔍 Gmail通知のテスト開始...')
 
 	# モックサービスを作成
-	with patch('src.gmail_notifier.service_account.Credentials'), patch('src.gmail_notifier.build') as mock_build:
+	with patch('src.gmail_notifier.pickle'), patch('src.gmail_notifier.build') as mock_build:
 		mock_service = MagicMock()
 		mock_build.return_value = mock_service
 
@@ -60,7 +60,7 @@ def test_gmail_notifier():
 		mock_service.users().messages().get().execute.return_value = mock_message
 
 		# テスト実行
-		notifier = GmailNotifier(os.environ['GOOGLE_CREDENTIALS'])
+		notifier = GmailNotifier(oauth_token=os.environ.get('GOOGLE_OAUTH_TOKEN'))
 		message = notifier.get_unread_fts_emails()
 
 		if message:
@@ -131,7 +131,7 @@ def test_main_workflow():
 		os.environ['GITHUB_OUTPUT'] = f.name
 
 		with (
-			patch('src.gmail_notifier.service_account.Credentials'),
+			patch('src.gmail_notifier.pickle'),
 			patch('src.gmail_notifier.build') as mock_build,
 			patch('requests.post') as mock_post,
 		):
