@@ -4,8 +4,11 @@ import os
 import json
 import base64
 from typing import Optional, Dict, Any
+import pickle
 
-from google.oauth2 import service_account
+from google_auth_oauthlib.flow import Flow
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 import requests
 
@@ -13,14 +16,63 @@ import requests
 class GmailNotifier:
 	"""Gmail notification handler."""
 
-	def __init__(self, credentials_json: str):
-		"""Initialize Gmail service with credentials."""
-		creds_info = json.loads(credentials_json)
-		self.credentials = service_account.Credentials.from_service_account_info(
-			creds_info,
-			scopes=['https://www.googleapis.com/auth/gmail.readonly']
-		)
+	def __init__(self, oauth_credentials_json: Optional[str] = None, token_file: str = 'token.pickle', oauth_token: Optional[str] = None):
+		"""Initialize Gmail service with OAuth 2.0 credentials."""
+		if oauth_token:
+			# Use pre-generated token (for GitHub Actions)
+			self.credentials = self._load_token_from_string(oauth_token)
+		else:
+			# Use interactive OAuth flow (for local development)
+			self.credentials = self._get_oauth_credentials(oauth_credentials_json, token_file)
 		self.service = build('gmail', 'v1', credentials=self.credentials)
+
+	def _load_token_from_string(self, token_string: str) -> Credentials:
+		"""Load credentials from base64 encoded token string."""
+		import base64
+		token_data = base64.b64decode(token_string.encode('utf-8'))
+		return pickle.loads(token_data)
+
+	def _get_oauth_credentials(self, oauth_credentials_json: str, token_file: str) -> Credentials:
+		"""Get or refresh OAuth 2.0 credentials."""
+		creds = None
+		scopes = ['https://www.googleapis.com/auth/gmail.readonly']
+
+		# Load existing token
+		if os.path.exists(token_file):
+			with open(token_file, 'rb') as token:
+				creds = pickle.load(token)
+
+		# If there are no (valid) credentials available, let the user log in.
+		if not creds or not creds.valid:
+			if creds and creds.expired and creds.refresh_token:
+				creds.refresh(Request())
+			else:
+				# Parse OAuth credentials from JSON string or file path
+				if oauth_credentials_json.startswith('{'):
+					# Direct JSON string
+					creds_info = json.loads(oauth_credentials_json)
+				else:
+					# File path
+					with open(oauth_credentials_json, 'r') as f:
+						creds_info = json.load(f)
+
+				flow = Flow.from_client_config(creds_info, scopes)
+				flow.redirect_uri = 'urn:ietf:wg:oauth:2.0:oob'  # For desktop apps
+
+				# Get authorization URL
+				auth_url, _ = flow.authorization_url(prompt='consent')
+				print(f"Please visit this URL to authorize the application: {auth_url}")
+
+				# Get authorization code from user
+				auth_code = input('Enter the authorization code: ')
+				flow.fetch_token(code=auth_code)
+				creds = flow.credentials
+
+			# Save the credentials for the next run
+			with open(token_file, 'wb') as token:
+				pickle.dump(creds, token)
+
+		return creds
 
 	def get_unread_fts_emails(self, user_id: str = 'me') -> Optional[Dict[str, Any]]:
 		"""Fetch unread emails with 'fts' label."""
@@ -163,7 +215,13 @@ def main() -> None:
 	"""Main function to process Gmail notifications."""
 	try:
 		# Initialize services
-		gmail_notifier = GmailNotifier(os.environ['GOOGLE_CREDENTIALS'])
+		oauth_token = os.environ.get('GOOGLE_OAUTH_TOKEN')
+		oauth_credentials = os.environ.get('GOOGLE_OAUTH_CREDENTIALS')
+
+		gmail_notifier = GmailNotifier(
+			oauth_credentials_json=oauth_credentials,
+			oauth_token=oauth_token
+		)
 		line_notifier = LineNotifier(
 			os.environ['LINE_CHANNEL_ACCESS_TOKEN'],
 			os.environ['LINE_USER_ID']
