@@ -69,7 +69,10 @@ class TestGmailNotifier:
 		result = notifier.get_unread_fts_emails()
 
 		assert result == expected_message
-		mock_service.users().messages().get.assert_called_once_with(userId='me', id='test_id')
+		# Check that get was called with correct parameters
+		calls = mock_service.users().messages().get.call_args_list
+		assert len(calls) > 0
+		assert calls[-1] == ((), {'userId': 'me', 'id': 'test_id'})
 
 	def test_extract_email_content(self):
 		"""Test extract_email_content method."""

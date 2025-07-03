@@ -94,8 +94,8 @@ def test_line_notifier(email_content):
 		call_args = mock_post.call_args
 
 		print('✅ LINE通知送信成功')
-		print(f'   🔗 URL: {call_args[1]["url"]}')
-		print(f'   📋 データ: {json.dumps(call_args[1]["json"], ensure_ascii=False, indent=2)}')
+		print(f'   🔗 URL: {call_args[0][0] if call_args[0] else "https://api.line.me/v2/bot/message/push"}')
+		print(f'   📋 データ: {json.dumps(call_args.kwargs.get("json", {}), ensure_ascii=False, indent=2)}')
 
 
 def test_slack_notifier():
@@ -118,8 +118,8 @@ def test_slack_notifier():
 		call_args = mock_post.call_args
 
 		print('✅ Slack通知送信成功')
-		print(f'   🔗 URL: {call_args[1]["url"]}')
-		print(f'   📋 データ: {json.dumps(call_args[1]["json"], ensure_ascii=False, indent=2)}')
+		print(f'   🔗 URL: {call_args[0][0] if call_args[0] else "https://slack.com/api/chat.postMessage"}')
+		print(f'   📋 データ: {json.dumps(call_args.kwargs.get("json", {}), ensure_ascii=False, indent=2)}')
 
 
 def test_main_workflow():
