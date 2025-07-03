@@ -1,26 +1,26 @@
 #!/usr/bin/env python3
 """ローカルテスト用スクリプト"""
 
+import json
 import os
 import sys
-import json
 import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 # プロジェクトルートを追加
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from src.gmail_notifier import GmailNotifier, LineNotifier, SlackNotifier
+from src.gmail_notifier import GmailNotifier, LineNotifier, SlackNotifier  # noqa: E402
 
 
 def load_test_env():
 	"""テスト用環境変数を読み込み"""
 	env_file = project_root / '.env.test'
 	if not env_file.exists():
-		print("❌ .env.testファイルが見つかりません")
-		print("📝 .env.exampleを参考に.env.testを作成してください")
+		print('❌ .env.testファイルが見つかりません')
+		print('📝 .env.exampleを参考に.env.testを作成してください')
 		sys.exit(1)
 
 	with open(env_file) as f:
@@ -29,24 +29,20 @@ def load_test_env():
 			if line and not line.startswith('#'):
 				key, value = line.split('=', 1)
 				os.environ[key] = value
-	print("✅ テスト用環境変数を読み込みました")
+	print('✅ テスト用環境変数を読み込みました')
 
 
 def test_gmail_notifier():
 	"""Gmail通知のテスト"""
-	print("\n🔍 Gmail通知のテスト開始...")
+	print('\n🔍 Gmail通知のテスト開始...')
 
 	# モックサービスを作成
-	with patch('src.gmail_notifier.service_account.Credentials'), \
-		 patch('src.gmail_notifier.build') as mock_build:
-
+	with patch('src.gmail_notifier.service_account.Credentials'), patch('src.gmail_notifier.build') as mock_build:
 		mock_service = MagicMock()
 		mock_build.return_value = mock_service
 
 		# モックレスポンス設定
-		mock_service.users().messages().list().execute.return_value = {
-			'messages': [{'id': 'test_message_id'}]
-		}
+		mock_service.users().messages().list().execute.return_value = {'messages': [{'id': 'test_message_id'}]}
 
 		# モックメッセージ設定
 		mock_message = {
@@ -54,12 +50,12 @@ def test_gmail_notifier():
 			'payload': {
 				'headers': [
 					{'name': 'Subject', 'value': 'テストメール件名'},
-					{'name': 'From', 'value': 'test@example.com'}
+					{'name': 'From', 'value': 'test@example.com'},
 				],
 				'body': {
 					'data': 'VGVzdCBib2R5IGNvbnRlbnQ='  # base64 encoded "Test body content"
-				}
-			}
+				},
+			},
 		}
 		mock_service.users().messages().get().execute.return_value = mock_message
 
@@ -69,19 +65,19 @@ def test_gmail_notifier():
 
 		if message:
 			email_content = notifier.extract_email_content(message)
-			print(f"✅ メール取得成功:")
-			print(f"   📧 件名: {email_content['subject']}")
-			print(f"   👤 差出人: {email_content['from']}")
-			print(f"   📝 本文: {email_content['body'][:50]}...")
+			print('✅ メール取得成功:')
+			print(f'   📧 件名: {email_content["subject"]}')
+			print(f'   👤 差出人: {email_content["from"]}')
+			print(f'   📝 本文: {email_content["body"][:50]}...')
 			return email_content
 		else:
-			print("⚠️  未読メールなし")
+			print('⚠️  未読メールなし')
 			return None
 
 
 def test_line_notifier(email_content):
 	"""LINE通知のテスト"""
-	print("\n📱 LINE通知のテスト開始...")
+	print('\n📱 LINE通知のテスト開始...')
 
 	with patch('requests.post') as mock_post:
 		mock_response = MagicMock()
@@ -89,10 +85,7 @@ def test_line_notifier(email_content):
 		mock_response.raise_for_status.return_value = None
 		mock_post.return_value = mock_response
 
-		notifier = LineNotifier(
-			os.environ['LINE_CHANNEL_ACCESS_TOKEN'],
-			os.environ['LINE_USER_ID']
-		)
+		notifier = LineNotifier(os.environ['LINE_CHANNEL_ACCESS_TOKEN'], os.environ['LINE_USER_ID'])
 
 		notifier.send_notification(email_content)
 
@@ -100,14 +93,14 @@ def test_line_notifier(email_content):
 		assert mock_post.called
 		call_args = mock_post.call_args
 
-		print("✅ LINE通知送信成功")
-		print(f"   🔗 URL: {call_args[1]['url']}")
-		print(f"   📋 データ: {json.dumps(call_args[1]['json'], ensure_ascii=False, indent=2)}")
+		print('✅ LINE通知送信成功')
+		print(f'   🔗 URL: {call_args[1]["url"]}')
+		print(f'   📋 データ: {json.dumps(call_args[1]["json"], ensure_ascii=False, indent=2)}')
 
 
 def test_slack_notifier():
 	"""Slack通知のテスト"""
-	print("\n💬 Slack通知のテスト開始...")
+	print('\n💬 Slack通知のテスト開始...')
 
 	with patch('requests.post') as mock_post:
 		mock_response = MagicMock()
@@ -115,50 +108,46 @@ def test_slack_notifier():
 		mock_response.json.return_value = {'ok': True}
 		mock_post.return_value = mock_response
 
-		notifier = SlackNotifier(
-			os.environ['SLACK_BOT_TOKEN'],
-			os.environ['SLACK_CHANNEL_ID']
-		)
+		notifier = SlackNotifier(os.environ['SLACK_BOT_TOKEN'], os.environ['SLACK_CHANNEL_ID'])
 
-		test_message = "テストエラーメッセージ"
+		test_message = 'テストエラーメッセージ'
 		notifier.send_error_notification(test_message)
 
 		# リクエスト内容確認
 		assert mock_post.called
 		call_args = mock_post.call_args
 
-		print("✅ Slack通知送信成功")
-		print(f"   🔗 URL: {call_args[1]['url']}")
-		print(f"   📋 データ: {json.dumps(call_args[1]['json'], ensure_ascii=False, indent=2)}")
+		print('✅ Slack通知送信成功')
+		print(f'   🔗 URL: {call_args[1]["url"]}')
+		print(f'   📋 データ: {json.dumps(call_args[1]["json"], ensure_ascii=False, indent=2)}')
 
 
 def test_main_workflow():
 	"""メインワークフローのテスト"""
-	print("\n🔄 メインワークフロー統合テスト...")
+	print('\n🔄 メインワークフロー統合テスト...')
 
 	# 一時ファイルでGITHUB_OUTPUTをテスト
 	with tempfile.NamedTemporaryFile(mode='w+', delete=False) as f:
 		os.environ['GITHUB_OUTPUT'] = f.name
 
-		with patch('src.gmail_notifier.service_account.Credentials'), \
-			 patch('src.gmail_notifier.build') as mock_build, \
-			 patch('requests.post') as mock_post:
-
+		with (
+			patch('src.gmail_notifier.service_account.Credentials'),
+			patch('src.gmail_notifier.build') as mock_build,
+			patch('requests.post') as mock_post,
+		):
 			# Gmail APIモック
 			mock_service = MagicMock()
 			mock_build.return_value = mock_service
-			mock_service.users().messages().list().execute.return_value = {
-				'messages': [{'id': 'test_id'}]
-			}
+			mock_service.users().messages().list().execute.return_value = {'messages': [{'id': 'test_id'}]}
 			mock_service.users().messages().get().execute.return_value = {
 				'id': 'test_id',
 				'payload': {
 					'headers': [
 						{'name': 'Subject', 'value': 'Integration Test'},
-						{'name': 'From', 'value': 'test@example.com'}
+						{'name': 'From', 'value': 'test@example.com'},
 					],
-					'body': {'data': 'VGVzdCBtZXNzYWdl'}  # "Test message"
-				}
+					'body': {'data': 'VGVzdCBtZXNzYWdl'},  # "Test message"
+				},
 			}
 
 			# LINE APIモック
@@ -168,15 +157,16 @@ def test_main_workflow():
 
 			# メイン関数実行
 			from src.gmail_notifier import main
+
 			main()
 
 			# GITHUB_OUTPUT確認
 			with open(f.name) as output_f:
 				output = output_f.read()
 				if 'status=success' in output:
-					print("✅ メインワークフロー成功")
+					print('✅ メインワークフロー成功')
 				else:
-					print(f"⚠️  予期しない出力: {output}")
+					print(f'⚠️  予期しない出力: {output}')
 
 		# 一時ファイル削除
 		os.unlink(f.name)
@@ -184,8 +174,8 @@ def test_main_workflow():
 
 def main():
 	"""メインテスト関数"""
-	print("🧪 ローカルテスト開始")
-	print("=" * 50)
+	print('🧪 ローカルテスト開始')
+	print('=' * 50)
 
 	try:
 		# 環境変数読み込み
@@ -203,7 +193,7 @@ def main():
 				'id': 'dummy_id',
 				'subject': 'ダミーテスト件名',
 				'from': 'dummy@example.com',
-				'body': 'ダミーテスト本文'
+				'body': 'ダミーテスト本文',
 			}
 			test_line_notifier(email_content)
 
@@ -213,12 +203,13 @@ def main():
 		# 統合テスト
 		test_main_workflow()
 
-		print("\n" + "=" * 50)
-		print("🎉 すべてのテストが完了しました！")
+		print('\n' + '=' * 50)
+		print('🎉 すべてのテストが完了しました！')
 
 	except Exception as e:
-		print(f"\n❌ テスト中にエラーが発生しました: {e}")
+		print(f'\n❌ テスト中にエラーが発生しました: {e}')
 		import traceback
+
 		traceback.print_exc()
 		sys.exit(1)
 

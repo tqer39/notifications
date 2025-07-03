@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """OAuth 2.0 setup script for Gmail API."""
 
+import base64
 import json
 import pickle
-import base64
+
 from google_auth_oauthlib.flow import Flow
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
 
 
 def setup_oauth_credentials(oauth_json_path: str) -> str:
@@ -14,7 +13,7 @@ def setup_oauth_credentials(oauth_json_path: str) -> str:
 	scopes = ['https://www.googleapis.com/auth/gmail.readonly']
 
 	# Load OAuth client configuration
-	with open(oauth_json_path, 'r') as f:
+	with open(oauth_json_path) as f:
 		client_config = json.load(f)
 
 	flow = Flow.from_client_config(client_config, scopes)
@@ -22,7 +21,7 @@ def setup_oauth_credentials(oauth_json_path: str) -> str:
 
 	# Get authorization URL
 	auth_url, _ = flow.authorization_url(prompt='consent')
-	print(f'Please visit this URL to authorize the application:')
+	print('Please visit this URL to authorize the application:')
 	print(f'{auth_url}')
 	print()
 

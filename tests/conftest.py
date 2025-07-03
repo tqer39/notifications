@@ -3,6 +3,7 @@
 import os
 import tempfile
 from unittest.mock import patch
+
 import pytest
 
 from tests.fixtures.mock_data import get_mock_env_vars
@@ -30,18 +31,16 @@ def temp_github_output():
 		elif 'GITHUB_OUTPUT' in os.environ:
 			del os.environ['GITHUB_OUTPUT']
 
-		try:
+		from contextlib import suppress
+
+		with suppress(FileNotFoundError):
 			os.unlink(f.name)
-		except FileNotFoundError:
-			pass
 
 
 @pytest.fixture
 def mock_gmail_service():
 	"""Gmail APIサービスのモック"""
-	with patch('src.gmail_notifier.service_account.Credentials'), \
-		 patch('src.gmail_notifier.build') as mock_build:
-
+	with patch('src.gmail_notifier.pickle'), patch('src.gmail_notifier.build') as mock_build:
 		yield mock_build
 
 

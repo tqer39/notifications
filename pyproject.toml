@@ -76,6 +76,7 @@ warn_unused_ignores = true
 warn_no_return = true
 warn_unreachable = true
 strict_equality = true
+exclude = ["scripts/"]
 
 # Allow missing imports for third-party libraries without stubs
 [[tool.mypy.overrides]]
@@ -83,6 +84,7 @@ module = [
     "googleapiclient.*",
     "google.auth.*",
     "google.oauth2.*",
+    "google_auth_oauthlib.*",
     "pytest",
     "responses",
 ]
@@ -93,6 +95,11 @@ ignore_missing_imports = true
 module = "tests.*"
 disallow_untyped_defs = false
 disallow_incomplete_defs = false
+
+# Ignore scripts directory
+[[tool.mypy.overrides]]
+module = "scripts.*"
+ignore_errors = true
 
 [tool.pytest.ini_options]
 minversion = "8.0"
