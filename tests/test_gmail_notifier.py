@@ -45,7 +45,8 @@ class TestGmailNotifier:
 		# Check that list was called with correct parameters
 		calls = mock_service.users().messages().list.call_args_list
 		assert len(calls) > 0
-		assert calls[-1] == ((), {'userId': 'me', 'q': 'label:"Family/お荷物滞留お知らせメール" is:unread', 'maxResults': 1})
+		expected_query = 'label:"Family/お荷物滞留お知らせメール" is:unread'
+		assert calls[-1] == ((), {'userId': 'me', 'q': expected_query, 'maxResults': 1})
 
 	@patch('src.gmail_notifier.build')
 	@patch('src.gmail_notifier.pickle')
