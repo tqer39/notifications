@@ -137,10 +137,12 @@ def test_main_workflow() -> None:
 			patch('src.gmail_notifier.pickle'),
 			patch('src.gmail_notifier.build') as mock_build,
 			patch('requests.post') as mock_post,
+			patch('src.gmail_notifier.GmailNotifier._load_token_from_string') as mock_load,
 		):
 			# Gmail APIモック
 			mock_service = MagicMock()
 			mock_build.return_value = mock_service
+			mock_load.return_value = MagicMock()
 			mock_service.users().messages().list().execute.return_value = {'messages': [{'id': 'test_id'}]}
 			mock_service.users().messages().get().execute.return_value = {
 				'id': 'test_id',
