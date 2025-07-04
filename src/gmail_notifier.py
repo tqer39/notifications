@@ -43,7 +43,7 @@ class GmailNotifier:
 	def _get_oauth_credentials(self, oauth_credentials_json: str | None, token_file: str) -> Credentials:
 		"""Get or refresh OAuth 2.0 credentials."""
 		creds = None
-		scopes = ['https://www.googleapis.com/auth/gmail.readonly']
+		scopes = ['https://www.googleapis.com/auth/gmail.modify']
 
 		# Load existing token
 		if os.path.exists(token_file):

@@ -11,7 +11,7 @@ on:
       sandbox:
         description: 'Run in sandbox mode (use sandbox LINE channel)'
         required: false
-        default: false
+        default: true
         type: boolean
 
 jobs:
