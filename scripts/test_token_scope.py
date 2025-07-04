@@ -4,7 +4,6 @@
 import base64
 import pickle
 import sys
-from google.oauth2.credentials import Credentials
 
 
 def test_token_scope(token_string: str) -> None:
