@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Check local token.pickle file scope."""
 
-import pickle
 import os
+import pickle
 
 
 def check_local_token():
