@@ -37,6 +37,10 @@ class GmailNotifier:
 		"""Load credentials from base64 encoded token string."""
 		import base64
 
+		# Add padding if needed
+		missing_padding = len(token_string) % 4
+		if missing_padding:
+			token_string += '=' * (4 - missing_padding)
 		token_data = base64.b64decode(token_string.encode('utf-8'))
 		return pickle.loads(token_data)  # type: ignore[no-any-return]
 
