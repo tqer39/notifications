@@ -2,15 +2,14 @@
 
 import os
 from dataclasses import dataclass
-from typing import Optional
 
 
 @dataclass
 class GoogleConfig:
 	"""Google OAuth configuration."""
 
-	oauth_token: Optional[str]
-	oauth_credentials: Optional[str]
+	oauth_token: str | None
+	oauth_credentials: str | None
 
 	@classmethod
 	def from_env(cls) -> 'GoogleConfig':

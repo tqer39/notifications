@@ -6,7 +6,7 @@ import os
 import sys
 import tempfile
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 from unittest.mock import MagicMock, patch
 
 # プロジェクトルートを追加
@@ -33,7 +33,7 @@ def load_test_env() -> None:
 	print('✅ テスト用環境変数を読み込みました')
 
 
-def test_gmail_notifier() -> Optional[Dict[str, Any]]:
+def test_gmail_notifier() -> dict[str, Any] | None:
 	"""Gmail通知のテスト"""
 	print('\n🔍 Gmail通知のテスト開始...')
 
@@ -76,7 +76,7 @@ def test_gmail_notifier() -> Optional[Dict[str, Any]]:
 			return None
 
 
-def test_line_notifier(email_content: Dict[str, Any]) -> None:
+def test_line_notifier(email_content: dict[str, Any]) -> None:
 	"""LINE通知のテスト"""
 	print('\n📱 LINE通知のテスト開始...')
 
