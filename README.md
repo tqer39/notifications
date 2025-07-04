@@ -6,11 +6,11 @@ A GitHub Actions workflow that monitors Gmail for specific labeled emails and se
 
 ## Features
 
-- **Gmail Monitoring**: Automatically checks for unread emails with "fts" label
+- **Gmail Monitoring**: Automatically checks for unread emails with "Family/お荷物滞留お知らせメール" label
 - **LINE Notifications**: Sends email content to LINE when new messages are found
 - **Email Management**: Marks processed emails as read to avoid duplicate notifications
 - **Error Handling**: Sends Slack notifications on workflow failures
-- **Flexible Execution**: Runs hourly or can be triggered manually
+- **Flexible Execution**: Runs at scheduled times (7:00, 12:00, 17:00 JST) or can be triggered manually
 
 ## Quick Start
 
@@ -148,13 +148,13 @@ For detailed testing instructions, see [TESTING.md](TESTING.md).
 
 ### Execution Schedule
 
-- **Automatic**: Runs every hour at minute 0 (cron: `0 * * * *`)
+- **Automatic**: Runs 3 times daily at 7:00, 12:00, and 17:00 JST
 - **Manual**: Can be triggered via GitHub Actions UI
 
 ### Email Processing Flow
 
 1. Connect to Gmail API using OAuth 2.0 credentials
-2. Search for unread emails with "fts" label
+2. Search for unread emails with "Family/お荷物滞留お知らせメール" label
 3. Retrieve the first unread email (if any)
 4. Extract email content (subject, sender, body)
 5. Send notification to LINE
@@ -191,7 +191,7 @@ If any step fails:
 | Gmail API authentication fails | Check OAuth 2.0 token validity and Gmail API enablement |
 | LINE notification not received | Verify channel access token and user ID |
 | Slack error notification fails | Confirm bot token has `chat:write` scope |
-| No emails found | Ensure emails have "fts" label and are unread |
+| No emails found | Ensure emails have "Family/お荷物滞留お知らせメール" label and are unread |
 
 ### Debug Steps
 

@@ -4,7 +4,7 @@
 
 ## プロジェクト概要
 
-Gmail to LINE通知システム - Gmail API を使って「fts」ラベルの付いた未読メールを監視し、新しいメールが見つかったらLINE Messaging APIに通知を送信するGitHub Actionsワークフローです。
+Gmail to LINE通知システム - Gmail API を使って「Family/お荷物滞留お知らせメール」ラベルの付いた未読メールを監視し、新しいメールが見つかったらLINE Messaging APIに通知を送信するGitHub Actionsワークフローです。
 
 ## 現在の技術スタック
 
@@ -163,7 +163,7 @@ uv run python scripts/test_local.py
 
 ### 自動デプロイ
 
-- GitHub Actionsで毎時0分に自動実行
+- GitHub Actionsで日本時間 7:00, 12:00, 17:00 に自動実行（1日3回）
 - 手動トリガーも可能
 
 ### 環境
