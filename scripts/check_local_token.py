@@ -5,7 +5,7 @@ import os
 import pickle
 
 
-def check_local_token():
+def check_local_token() -> None:
 	"""Check the scope of local token.pickle file."""
 	token_file = 'token.pickle'
 

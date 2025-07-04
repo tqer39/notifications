@@ -39,6 +39,7 @@ if __name__ == '__main__':
 
 		# Try to get from environment
 		import os
+
 		token = os.environ.get('GOOGLE_OAUTH_TOKEN')
 		if token:
 			print('\nTesting token from environment variable...')
