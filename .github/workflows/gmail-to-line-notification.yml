@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v3
+        uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
           cache-dependency-glob: 'pyproject.toml'
@@ -39,8 +39,12 @@ jobs:
         id: gmail_check
         env:
           GOOGLE_OAUTH_TOKEN: ${{ secrets.GOOGLE_OAUTH_TOKEN }}
-          LINE_CHANNEL_ACCESS_TOKEN: ${{ (github.event_name == 'workflow_dispatch' && inputs.sandbox == true) && secrets.LINE_CHANNEL_ACCESS_TOKEN_SANDBOX || secrets.LINE_CHANNEL_ACCESS_TOKEN }}
-          LINE_USER_ID: ${{ (github.event_name == 'workflow_dispatch' && inputs.sandbox == true) && secrets.LINE_USER_ID_SANDBOX || secrets.LINE_USER_ID }}
+          LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
+          LINE_CHANNEL_ACCESS_TOKEN_SANDBOX: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN_SANDBOX }}
+          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+          LINE_USER_ID_SANDBOX: ${{ secrets.LINE_USER_ID_SANDBOX }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
           SANDBOX_MODE: ${{ (github.event_name == 'workflow_dispatch' && inputs.sandbox == true) && 'true' || 'false' }}
         run: uv run python -m src.gmail_notifier
 

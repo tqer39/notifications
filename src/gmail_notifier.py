@@ -37,13 +37,17 @@ class GmailNotifier:
 		"""Load credentials from base64 encoded token string."""
 		import base64
 
+		# Add padding if needed
+		missing_padding = len(token_string) % 4
+		if missing_padding:
+			token_string += '=' * (4 - missing_padding)
 		token_data = base64.b64decode(token_string.encode('utf-8'))
 		return pickle.loads(token_data)  # type: ignore[no-any-return]
 
 	def _get_oauth_credentials(self, oauth_credentials_json: str | None, token_file: str) -> Credentials:
 		"""Get or refresh OAuth 2.0 credentials."""
 		creds = None
-		scopes = ['https://www.googleapis.com/auth/gmail.readonly']
+		scopes = ['https://www.googleapis.com/auth/gmail.modify']
 
 		# Load existing token
 		if os.path.exists(token_file):
@@ -221,6 +225,7 @@ def main() -> None:
 				email_content['subject'] = f'[SANDBOX] {email_content["subject"]}'
 
 			line_notifier.send_notification(email_content)
+			print(f'Attempting to mark email {email_content["id"]} as read...')
 			gmail_notifier.mark_as_read(email_content['id'])
 
 			status_msg = f'success{config.get_status_suffix()}'

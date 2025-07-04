@@ -10,7 +10,7 @@ from google_auth_oauthlib.flow import Flow
 
 def setup_oauth_credentials(oauth_json_path: str) -> str:
 	"""Setup OAuth 2.0 credentials and return encoded token."""
-	scopes = ['https://www.googleapis.com/auth/gmail.readonly']
+	scopes = ['https://www.googleapis.com/auth/gmail.modify']
 
 	# Load OAuth client configuration
 	with open(oauth_json_path) as f:
