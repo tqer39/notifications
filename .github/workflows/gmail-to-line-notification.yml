@@ -43,6 +43,8 @@ jobs:
           LINE_CHANNEL_ACCESS_TOKEN_SANDBOX: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN_SANDBOX }}
           LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
           LINE_USER_ID_SANDBOX: ${{ secrets.LINE_USER_ID_SANDBOX }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
           SANDBOX_MODE: ${{ (github.event_name == 'workflow_dispatch' && inputs.sandbox == true) && 'true' || 'false' }}
         run: uv run python -m src.gmail_notifier
 
