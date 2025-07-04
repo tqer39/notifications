@@ -206,8 +206,7 @@ def main() -> None:
 
 		# Initialize services
 		gmail_notifier = GmailNotifier(
-			oauth_credentials_json=config.google.oauth_credentials,
-			oauth_token=config.google.oauth_token
+			oauth_credentials_json=config.google.oauth_credentials, oauth_token=config.google.oauth_token
 		)
 		line_notifier = LineNotifier(config.line.channel_access_token, config.line.user_id)
 

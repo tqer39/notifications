@@ -27,7 +27,7 @@ def send_slack_error_notification() -> None:
 	data = {
 		'channel': slack_config.channel_id,
 		'text': f'⚠️ Gmail to LINE Notification Failed\n\n{error_message}',
-		'mrkdwn': True
+		'mrkdwn': True,
 	}
 
 	response = requests.post(url, headers=headers, json=data)

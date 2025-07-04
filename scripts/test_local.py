@@ -60,9 +60,11 @@ def test_gmail_notifier() -> dict[str, Any] | None:
 		}
 		mock_service.users().messages().get().execute.return_value = mock_message
 
-		# テスト実行
-		notifier = GmailNotifier(oauth_token=os.environ.get('GOOGLE_OAUTH_TOKEN'))
-		message = notifier.get_unread_family_package_emails()
+		# テスト実行（ダミートークンを使用）
+		with patch('src.gmail_notifier.GmailNotifier._load_token_from_string') as mock_load:
+			mock_load.return_value = MagicMock()
+			notifier = GmailNotifier(oauth_token='dummy_token')
+			message = notifier.get_unread_family_package_emails()
 
 		if message:
 			email_content = notifier.extract_email_content(message)

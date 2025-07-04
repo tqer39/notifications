@@ -36,7 +36,7 @@ class TestLineConfig:
 			'LINE_USER_ID': 'prod_user',
 			'LINE_CHANNEL_ACCESS_TOKEN_SANDBOX': 'sandbox_token',
 			'LINE_USER_ID_SANDBOX': 'sandbox_user',
-		}
+		},
 	)
 	def test_from_env_production_mode(self):
 		"""Test LineConfig.from_env in production mode."""
@@ -51,7 +51,7 @@ class TestLineConfig:
 			'LINE_USER_ID': 'prod_user',
 			'LINE_CHANNEL_ACCESS_TOKEN_SANDBOX': 'sandbox_token',
 			'LINE_USER_ID_SANDBOX': 'sandbox_user',
-		}
+		},
 	)
 	def test_from_env_sandbox_mode(self):
 		"""Test LineConfig.from_env in sandbox mode."""
@@ -107,7 +107,7 @@ class TestAppConfig:
 			'LINE_USER_ID': 'prod_user',
 			'SLACK_BOT_TOKEN': 'slack_token',
 			'SLACK_CHANNEL_ID': 'slack_channel',
-		}
+		},
 	)
 	def test_from_env_production_mode(self):
 		"""Test AppConfig.from_env in production mode."""
@@ -145,7 +145,7 @@ class TestAppConfig:
 			'LINE_USER_ID': 'user',
 			'SLACK_BOT_TOKEN': 'slack_token',
 			'SLACK_CHANNEL_ID': 'slack_channel',
-		}
+		},
 	)
 	def test_get_status_suffix_production(self):
 		"""Test get_status_suffix in production mode."""
@@ -160,7 +160,7 @@ class TestAppConfig:
 			'LINE_USER_ID_SANDBOX': 'user',
 			'SLACK_BOT_TOKEN': 'slack_token',
 			'SLACK_CHANNEL_ID': 'slack_channel',
-		}
+		},
 	)
 	def test_get_status_suffix_sandbox(self):
 		"""Test get_status_suffix in sandbox mode."""
@@ -175,7 +175,7 @@ class TestAppConfig:
 			'LINE_USER_ID': 'user',
 			'SLACK_BOT_TOKEN': 'slack_token',
 			'SLACK_CHANNEL_ID': 'slack_channel',
-		}
+		},
 	)
 	def test_get_mode_display_production(self):
 		"""Test get_mode_display in production mode."""
@@ -190,7 +190,7 @@ class TestAppConfig:
 			'LINE_USER_ID_SANDBOX': 'user',
 			'SLACK_BOT_TOKEN': 'slack_token',
 			'SLACK_CHANNEL_ID': 'slack_channel',
-		}
+		},
 	)
 	def test_get_mode_display_sandbox(self):
 		"""Test get_mode_display in sandbox mode."""
