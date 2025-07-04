@@ -6,7 +6,7 @@ import os
 import sys
 import tempfile
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 from unittest.mock import MagicMock, patch
 
 # プロジェクトルートを追加
@@ -33,7 +33,7 @@ def load_test_env() -> None:
 	print('✅ テスト用環境変数を読み込みました')
 
 
-def test_gmail_notifier() -> Optional[Dict[str, Any]]:
+def test_gmail_notifier() -> dict[str, Any] | None:
 	"""Gmail通知のテスト"""
 	print('\n🔍 Gmail通知のテスト開始...')
 
@@ -60,9 +60,11 @@ def test_gmail_notifier() -> Optional[Dict[str, Any]]:
 		}
 		mock_service.users().messages().get().execute.return_value = mock_message
 
-		# テスト実行
-		notifier = GmailNotifier(oauth_token=os.environ.get('GOOGLE_OAUTH_TOKEN'))
-		message = notifier.get_unread_family_package_emails()
+		# テスト実行（ダミートークンを使用）
+		with patch('src.gmail_notifier.GmailNotifier._load_token_from_string') as mock_load:
+			mock_load.return_value = MagicMock()
+			notifier = GmailNotifier(oauth_token='dummy_token')
+			message = notifier.get_unread_family_package_emails()
 
 		if message:
 			email_content = notifier.extract_email_content(message)
@@ -76,7 +78,7 @@ def test_gmail_notifier() -> Optional[Dict[str, Any]]:
 			return None
 
 
-def test_line_notifier(email_content: Dict[str, Any]) -> None:
+def test_line_notifier(email_content: dict[str, Any]) -> None:
 	"""LINE通知のテスト"""
 	print('\n📱 LINE通知のテスト開始...')
 
@@ -135,10 +137,12 @@ def test_main_workflow() -> None:
 			patch('src.gmail_notifier.pickle'),
 			patch('src.gmail_notifier.build') as mock_build,
 			patch('requests.post') as mock_post,
+			patch('src.gmail_notifier.GmailNotifier._load_token_from_string') as mock_load,
 		):
 			# Gmail APIモック
 			mock_service = MagicMock()
 			mock_build.return_value = mock_service
+			mock_load.return_value = MagicMock()
 			mock_service.users().messages().list().execute.return_value = {'messages': [{'id': 'test_id'}]}
 			mock_service.users().messages().get().execute.return_value = {
 				'id': 'test_id',

@@ -4,14 +4,19 @@ import os
 
 import requests
 
+from .config import SlackConfig
+
 
 def send_slack_error_notification() -> None:
 	"""Send error notification to Slack when workflow fails."""
-	bot_token = os.environ['SLACK_BOT_TOKEN']
-	channel_id = os.environ['SLACK_CHANNEL_ID']
+	try:
+		slack_config = SlackConfig.from_env()
+	except ValueError as e:
+		print(f'Slack configuration error: {e}')
+		return
 
 	url = 'https://slack.com/api/chat.postMessage'
-	headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {bot_token}'}
+	headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {slack_config.bot_token}'}
 
 	# Build error message
 	github_repo = os.environ.get('GITHUB_REPOSITORY', '')
@@ -19,7 +24,11 @@ def send_slack_error_notification() -> None:
 	workflow_url = f'https://github.com/{github_repo}/actions/runs/{run_id}'
 	error_message = f'Workflow failed: {workflow_url}\nPlease check the logs for details.'
 
-	data = {'channel': channel_id, 'text': f'⚠️ Gmail to LINE Notification Failed\n\n{error_message}', 'mrkdwn': True}
+	data = {
+		'channel': slack_config.channel_id,
+		'text': f'⚠️ Gmail to LINE Notification Failed\n\n{error_message}',
+		'mrkdwn': True,
+	}
 
 	response = requests.post(url, headers=headers, json=data)
 	response_data = response.json()

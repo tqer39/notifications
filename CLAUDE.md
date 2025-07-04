@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Gmail to LINE Notification System - A GitHub Actions workflow that monitors Gmail for unread emails with the "fts" label and sends notifications to LINE Messaging API when new emails are found.
+Gmail to LINE Notification System - A GitHub Actions workflow that monitors Gmail for unread emails with the "Family/お荷物滞留お知らせメール" label and sends notifications to LINE Messaging API when new emails are found.
 
 ## Current Technology Stack
 
@@ -164,7 +164,7 @@ This project uses the following APIs:
 
 ### Automated Deployment
 
-- GitHub Actions runs automatically every hour at minute 0
+- GitHub Actions runs automatically 3 times daily at 7:00, 12:00, and 17:00 JST
 - Manual triggering also available
 
 ### Environments
@@ -259,7 +259,7 @@ pre-commit run <hook-id>
 ### Gmail Integration
 
 - Uses service account authentication
-- Searches for emails with "fts" label
+- Searches for emails with "Family/お荷物滞留お知らせメール" label
 - Processes only unread emails
 - Marks emails as read after processing
 
