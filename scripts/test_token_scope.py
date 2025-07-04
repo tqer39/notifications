@@ -10,6 +10,9 @@ from google.oauth2.credentials import Credentials
 def test_token_scope(token_string: str) -> None:
 	"""Test the scope of an OAuth token."""
 	try:
+		# Remove any whitespace or newlines
+		token_string = token_string.strip()
+
 		# Decode token
 		token_data = base64.b64decode(token_string.encode('utf-8'))
 		creds = pickle.loads(token_data)
