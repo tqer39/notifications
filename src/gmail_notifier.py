@@ -85,7 +85,9 @@ class GmailNotifier:
 
 		return creds  # type: ignore[no-any-return]
 
-	def get_unread_family_package_emails(self, user_id: str = 'me', label: str = 'Family/お荷物滞留お知らせメール') -> dict[str, Any] | None:
+	def get_unread_family_package_emails(
+		self, user_id: str = 'me', label: str = 'Family/お荷物滞留お知らせメール'
+	) -> dict[str, Any] | None:
 		"""Fetch unread emails with specified label."""
 		try:
 			query = f'label:"{label}" is:unread'
