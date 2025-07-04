@@ -12,6 +12,8 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
 
+from .config import AppConfig
+
 
 class GmailNotifier:
 	"""Gmail notification handler."""
@@ -83,15 +85,15 @@ class GmailNotifier:
 
 		return creds  # type: ignore[no-any-return]
 
-	def get_unread_family_package_emails(self, user_id: str = 'me') -> dict[str, Any] | None:
-		"""Fetch unread emails with 'Family/お荷物滞留お知らせメール' label."""
+	def get_unread_family_package_emails(self, user_id: str = 'me', label: str = 'Family/お荷物滞留お知らせメール') -> dict[str, Any] | None:
+		"""Fetch unread emails with specified label."""
 		try:
-			query = 'label:"Family/お荷物滞留お知らせメール" is:unread'
+			query = f'label:"{label}" is:unread'
 			results = self.service.users().messages().list(userId=user_id, q=query, maxResults=1).execute()
 
 			messages = results.get('messages', [])
 			if not messages:
-				print("No unread emails with 'Family/お荷物滞留お知らせメール' label found.")
+				print(f"No unread emails with '{label}' label found.")
 				return None
 
 			# Get details of the first message
@@ -196,48 +198,50 @@ class SlackNotifier:
 def main() -> None:
 	"""Main function to process Gmail notifications."""
 	try:
-		# Check if running in sandbox mode
-		sandbox_mode = os.environ.get('SANDBOX_MODE', 'false').lower() == 'true'
-
-		if sandbox_mode:
-			print('🧪 Running in SANDBOX mode')
-		else:
-			print('🚀 Running in PRODUCTION mode')
+		# Load configuration
+		config = AppConfig.from_env()
+		print(config.get_mode_display())
 
 		# Initialize services
-		oauth_token = os.environ.get('GOOGLE_OAUTH_TOKEN')
-		oauth_credentials = os.environ.get('GOOGLE_OAUTH_CREDENTIALS')
-
-		gmail_notifier = GmailNotifier(oauth_credentials_json=oauth_credentials, oauth_token=oauth_token)
-		line_notifier = LineNotifier(os.environ['LINE_CHANNEL_ACCESS_TOKEN'], os.environ['LINE_USER_ID'])
+		gmail_notifier = GmailNotifier(
+			oauth_credentials_json=config.google.oauth_credentials,
+			oauth_token=config.google.oauth_token
+		)
+		line_notifier = LineNotifier(config.line.channel_access_token, config.line.user_id)
 
 		# Check for unread emails
-		message = gmail_notifier.get_unread_family_package_emails()
+		message = gmail_notifier.get_unread_family_package_emails(label=config.gmail_label)
 
 		if message:
 			email_content = gmail_notifier.extract_email_content(message)
 
 			# Add sandbox prefix to notification if in sandbox mode
-			if sandbox_mode:
+			if config.sandbox_mode:
 				email_content['subject'] = f'[SANDBOX] {email_content["subject"]}'
 
 			line_notifier.send_notification(email_content)
 			gmail_notifier.mark_as_read(email_content['id'])
 
-			status_msg = 'success_sandbox' if sandbox_mode else 'success'
-			with open(os.environ.get('GITHUB_OUTPUT', '/dev/null'), 'a') as f:
+			status_msg = f'success{config.get_status_suffix()}'
+			with open(config.github_output_file, 'a') as f:
 				f.write(f'status={status_msg}\n')
 		else:
 			print('No new emails to process')
-			status_msg = 'no_emails_sandbox' if sandbox_mode else 'no_emails'
-			with open(os.environ.get('GITHUB_OUTPUT', '/dev/null'), 'a') as f:
+			status_msg = f'no_emails{config.get_status_suffix()}'
+			with open(config.github_output_file, 'a') as f:
 				f.write(f'status={status_msg}\n')
 
 	except Exception as e:
 		print(f'Error in main process: {str(e)}')
-		sandbox_suffix = '_sandbox' if os.environ.get('SANDBOX_MODE', 'false').lower() == 'true' else ''
-		with open(os.environ.get('GITHUB_OUTPUT', '/dev/null'), 'a') as f:
-			f.write(f'status=failed{sandbox_suffix}\n')
+		try:
+			config = AppConfig.from_env()
+			status_msg = f'failed{config.get_status_suffix()}'
+			with open(config.github_output_file, 'a') as f:
+				f.write(f'status={status_msg}\n')
+		except Exception:
+			# Fallback if config loading fails
+			with open(os.environ.get('GITHUB_OUTPUT', '/dev/null'), 'a') as f:
+				f.write('status=failed\n')
 		raise
 
 
