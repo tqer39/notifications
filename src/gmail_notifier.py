@@ -157,7 +157,7 @@ class LineNotifier:
 		url = 'https://api.line.me/v2/bot/message/push'
 		headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {self.channel_access_token}'}
 
-		message_text = '📧 新着メール (ftsラベル)\n\n'
+		message_text = '📧 新着メール (お荷物滞留お知らせ)\n\n'
 		message_text += f'件名: {email_content["subject"]}\n'
 		message_text += f'差出人: {email_content["from"]}\n\n'
 		message_text += f'本文:\n{email_content["body"]}'
