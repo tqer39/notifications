@@ -221,6 +221,7 @@ def main() -> None:
 				email_content['subject'] = f'[SANDBOX] {email_content["subject"]}'
 
 			line_notifier.send_notification(email_content)
+			print(f'Attempting to mark email {email_content["id"]} as read...')
 			gmail_notifier.mark_as_read(email_content['id'])
 
 			status_msg = f'success{config.get_status_suffix()}'
