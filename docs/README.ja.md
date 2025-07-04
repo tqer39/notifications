@@ -16,7 +16,7 @@
 
 1. **GOOGLE_OAUTH_TOKEN**
    - Google OAuth 2.0 認証トークン（base64エンコード形式）
-   - 必要な権限: Gmail API 読み取りアクセス
+   - 必要な権限: Gmail API の読み取りと変更アクセス（gmail.modify スコープ）
    - Google Cloud Console で Gmail API を有効化
 
 2. **LINE_CHANNEL_ACCESS_TOKEN**
@@ -43,12 +43,54 @@
 
 ### Google OAuth の設定
 
-1. Google Cloud Console で OAuth 2.0 クライアント ID を作成
-2. アプリケーションの種類を「デスクトップアプリケーション」に設定
-3. 認証情報 JSON をダウンロード
-4. `python scripts/setup_oauth.py <oauth_credentials.json>` を実行
-5. ブラウザで認証フローを完了
-6. 生成された base64 トークンを GitHub Secrets の `GOOGLE_OAUTH_TOKEN` に追加
+1. **OAuth 2.0 クライアント ID を作成**
+   - [Google Cloud Console](https://console.cloud.google.com) にアクセス
+   - APIs & Services > Credentials に移動
+   - 「認証情報を作成」> 「OAuth 2.0 クライアント ID」を選択
+   - アプリケーションの種類を「デスクトップアプリケーション」に設定
+   - 認証情報 JSON をダウンロード
+
+2. **Gmail API を有効化**
+   - APIs & Services > Library に移動
+   - 「Gmail API」を検索
+   - API を有効化
+
+3. **OAuth トークンを生成**
+
+   ```bash
+   # 依存関係をインストール
+   uv sync --frozen
+
+   # セットアップスクリプトを実行
+   uv run python scripts/setup_oauth.py <ダウンロードした認証情報JSONのパス>
+   ```
+
+   - ブラウザで認証フローに従う
+   - Gmail のメッセージの読み取りと変更権限を許可
+   - 表示された認証コードを入力
+
+4. **トークンの権限を確認**
+
+   ```bash
+   # トークンが正しい権限を持っているか確認
+   uv run python scripts/check_local_token.py
+   ```
+
+   以下のメッセージが表示されれば成功:
+
+   ```
+   ✅ Token has gmail.modify scope - can mark emails as read
+   ```
+
+5. **GitHub Secrets に追加**
+
+   セットアップスクリプトが出力した base64 エンコードされたトークンをコピーして:
+   - GitHub リポジトリの Settings > Secrets and variables > Actions に移動
+   - 「New repository secret」をクリック
+   - Name: `GOOGLE_OAUTH_TOKEN`
+   - Value: コピーしたトークンを貼り付け
+
+   **注意**: このトークンはメールの読み取りと既読設定の権限を持ちます。ワークフローが正常に動作するために必要です。
 
 ### LINE の設定
 
@@ -85,8 +127,23 @@ notifications/
 │   └── slack_error_handler.py
 ├── tests/                # テストコード
 ├── scripts/              # 開発用スクリプト
+│   ├── setup_oauth.py    # OAuth トークン生成
+│   ├── check_local_token.py # トークン権限確認
+│   └── test_local.py     # ローカルテスト
 └── docs/                 # ドキュメント
 ```
+
+## トラブルシューティング
+
+### よくある問題
+
+| 問題 | 解決方法 |
+|------|----------|
+| Gmail API 認証エラー | `uv run python scripts/setup_oauth.py` でトークンを再生成 |
+| "Request had insufficient authentication scopes" エラー | トークンが readonly スコープです。modify スコープで再生成が必要 |
+| LINE 通知が届かない | チャンネルアクセストークンとユーザー ID を確認 |
+| Slack エラー通知が失敗 | ボットトークンが `chat:write` スコープを持っているか確認 |
+| メールが見つからない | メールに "Family/お荷物滞留お知らせメール" ラベルがあり、未読であることを確認 |
 
 ## ライセンス
 

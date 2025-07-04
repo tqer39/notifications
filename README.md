@@ -63,9 +63,40 @@ A GitHub Actions workflow that monitors Gmail for specific labeled emails and se
    - Enable the API
 
 3. **Generate OAuth Token**
-   - Run the setup script: `python scripts/setup_oauth.py <oauth_credentials.json>`
+
+   ```bash
+   # Install dependencies first
+   uv sync --frozen
+
+   # Run the setup script
+   uv run python scripts/setup_oauth.py <path_to_oauth_credentials.json>
+   ```
+
    - Follow the authorization flow in your browser
-   - Copy the generated base64 token to GitHub Secrets as `GOOGLE_OAUTH_TOKEN`
+   - Grant permissions for reading and modifying Gmail messages
+   - Enter the authorization code when prompted
+
+4. **Verify Token Permissions**
+
+   ```bash
+   # Check that the token has the correct permissions
+   uv run python scripts/check_local_token.py
+   ```
+
+   You should see:
+
+   ```
+   ✅ Token has gmail.modify scope - can mark emails as read
+   ```
+
+5. **Add Token to GitHub Secrets**
+
+   The setup script will output a base64 encoded token. Copy this entire token and:
+   - Go to your GitHub repository Settings > Secrets and variables > Actions
+   - Create a new secret named `GOOGLE_OAUTH_TOKEN`
+   - Paste the token value
+
+   **Note**: The token allows reading emails and marking them as read. This is required for the workflow to function properly.
 
 ### LINE Messaging API Setup
 
@@ -126,6 +157,8 @@ notifications/
 │   ├── test_gmail_notifier.py
 │   └── test_slack_error_handler.py
 ├── scripts/                 # Development scripts
+│   ├── setup_oauth.py       # OAuth token generation
+│   ├── check_local_token.py # Token permissions checker
 │   ├── test_local.py
 │   └── run_tests.sh
 ├── docs/                    # Documentation
@@ -188,7 +221,8 @@ If any step fails:
 
 | Issue | Solution |
 |-------|----------|
-| Gmail API authentication fails | Check OAuth 2.0 token validity and Gmail API enablement |
+| Gmail API authentication fails | Regenerate token with `uv run python scripts/setup_oauth.py` |
+| "Request had insufficient authentication scopes" error | Token has readonly scope. Regenerate with modify scope |
 | LINE notification not received | Verify channel access token and user ID |
 | Slack error notification fails | Confirm bot token has `chat:write` scope |
 | No emails found | Ensure emails have "Family/お荷物滞留お知らせメール" label and are unread |

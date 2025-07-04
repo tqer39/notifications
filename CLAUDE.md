@@ -347,6 +347,16 @@ When making significant changes to the codebase, maintain a development diary in
 - Track issues encountered and their solutions
 - Provide context for future developers
 
+### Creation Rules
+
+Development diaries should be created following these rules:
+
+1. **When to Create**: Create a new diary entry when there are uncommitted changes or undocumented work from previous commits
+2. **File Naming**: Use the format `docs/dev-diary/YYYY-MM-DD.md` with today's date
+3. **Automatic Creation**: If a file for today's date doesn't exist, create it automatically
+4. **Coverage Period**: Document all development work since the last diary entry, regardless of when it was committed
+5. **Timing**: Create the diary entry at the end of a development session or when requested
+
 ### Format
 
 Each diary entry should include:
