@@ -2,11 +2,6 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
 
-exclude: |
-  (?x)^(
-    USAGE.md
-  )$
-
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
@@ -81,8 +76,3 @@ repos:
     hooks:
       - id: renovate-config-validator
         files: renovate.json
-
-  - repo: https://github.com/antonbabenko/pre-commit-terraform
-    rev: v1.99.4
-    hooks:
-      - id: terraform_fmt
