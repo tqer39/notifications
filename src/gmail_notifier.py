@@ -42,7 +42,7 @@ class GmailNotifier:
 		if missing_padding:
 			token_string += '=' * (4 - missing_padding)
 		token_data = base64.b64decode(token_string.encode('utf-8'))
-		creds = pickle.loads(token_data)
+		creds = pickle.loads(token_data)  # type: Credentials
 
 		# Check if credentials are expired and refresh if possible
 		if not creds.valid:
