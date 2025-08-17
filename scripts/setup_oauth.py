@@ -19,8 +19,8 @@ def setup_oauth_credentials(oauth_json_path: str) -> str:
 	flow = Flow.from_client_config(client_config, scopes)
 	flow.redirect_uri = 'urn:ietf:wg:oauth:2.0:oob'  # For desktop apps
 
-	# Get authorization URL
-	auth_url, _ = flow.authorization_url(prompt='consent')
+	# Get authorization URL with offline access to get refresh token
+	auth_url, _ = flow.authorization_url(prompt='consent', access_type='offline')
 	print('Please visit this URL to authorize the application:')
 	print(f'{auth_url}')
 	print()

@@ -384,3 +384,6 @@ dmypy.json
 token.pickle
 oauth_credentials.json
 client_secret_*.json
+credentials.json
+*_credentials.json
+oauth_*.json
