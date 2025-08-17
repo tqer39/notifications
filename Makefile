@@ -1,7 +1,7 @@
 # Gmail to LINE Notification System
 # Makefile for common development tasks
 
-.PHONY: help install test lint format type-check clean dev setup all-tests local-test
+.PHONY: help install test lint format type-check clean dev setup setup-oauth all-tests local-test
 
 # デフォルトターゲット
 help: ## このヘルプメッセージを表示
@@ -24,6 +24,17 @@ setup: ## 開発環境をセットアップ
 		echo "✅ .env.test は既に存在します"; \
 	fi
 	@echo "🎉 セットアップ完了！"
+
+# Google OAuth認証情報発行
+setup-oauth: ## Google認証情報(token.pickle)を発行 - 引数: OAUTH_JSON=<path>
+	@echo "🌐 Google OAuth認証情報を発行します..."
+	@if [ -z "$(OAUTH_JSON)" ]; then \
+		echo "❌ エラー: OAUTH_JSON=<oauth_credentials.json> を指定してください"; \
+		echo "例: make setup-oauth OAUTH_JSON=credentials.json"; \
+		exit 1; \
+	fi
+	uv run python scripts/setup_oauth.py $(OAUTH_JSON)
+	@echo "✅ token.pickle が生成されました（必要に応じて .env へパスを設定してください）"
 
 install: ## 依存関係をインストール
 	@echo "📦 依存関係をインストール中..."
@@ -154,3 +165,4 @@ docs: ## ドキュメントを表示
 	@echo "make setup     # 初回セットアップ"
 	@echo "make all-tests # 全テスト実行"
 	@echo "make dev       # 開発実行"
+	@echo "make setup-oauth # Google認証情報(token.pickle)発行"
