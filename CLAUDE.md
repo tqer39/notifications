@@ -101,18 +101,29 @@ This project uses the following APIs:
 
 | Secret Name | Description | How to Obtain |
 |-------------|-------------|---------------|
-| `GOOGLE_CREDENTIALS` | Google Cloud service account credentials | Google Cloud Console |
+| `GOOGLE_OAUTH_TOKEN` | OAuth 2.0 credentials with refresh token (base64 encoded pickle) | Generated via local OAuth flow |
 | `LINE_CHANNEL_ACCESS_TOKEN` | LINE Messaging API channel token | LINE Developers Console |
+| `LINE_CHANNEL_ACCESS_TOKEN_SANDBOX` | LINE Messaging API sandbox channel token | LINE Developers Console |
 | `LINE_USER_ID` | LINE user ID for notifications | LINE Official Account Manager |
+| `LINE_USER_ID_SANDBOX` | LINE user ID for sandbox notifications | LINE Official Account Manager |
 | `SLACK_BOT_TOKEN` | Slack bot token (for error notifications) | Slack API |
 | `SLACK_CHANNEL_ID` | Slack channel ID | Slack |
 
 ### Gmail API Setup
 
-1. Create service account in Google Cloud Console
+**OAuth 2.0 Authentication (Current Implementation):**
+
+1. Create OAuth 2.0 client credentials in Google Cloud Console
 2. Enable Gmail API
-3. Grant Gmail read permissions to service account
-4. Set JSON credentials in GitHub Secrets
+3. Generate OAuth token locally using `scripts/test_local.py`
+4. Base64 encode the generated `token.pickle` file
+5. Set encoded token as `GOOGLE_OAUTH_TOKEN` in GitHub Secrets
+
+**Important Notes:**
+
+- The OAuth token includes a refresh_token for automatic renewal when expired
+- Token generation requires `access_type='offline'` to obtain refresh_token
+- GitHub Actions automatically refreshes expired tokens using the refresh_token
 
 ### LINE Messaging API Setup
 
@@ -177,8 +188,9 @@ This project uses the following APIs:
 ### Common Issues
 
 1. **Gmail API Authentication Error**
-   - Check service account permissions
-   - Verify JSON credentials format
+   - Check if `GOOGLE_OAUTH_TOKEN` has expired and lacks refresh_token
+   - Regenerate OAuth token with `access_type='offline'` if refresh fails
+   - Verify OAuth client credentials configuration
 
 2. **LINE Notifications Not Received**
    - Verify channel access token
@@ -256,12 +268,22 @@ pre-commit run <hook-id>
 
 ## Architecture Notes
 
+### Configuration System
+
+The application uses a centralized configuration system (`src/config.py`) that:
+
+- Loads environment variables automatically
+- Supports sandbox mode for testing with separate LINE channels
+- Provides type-safe configuration classes for Google, LINE, and Slack APIs
+- Handles both production and sandbox environments through environment variable selection
+
 ### Gmail Integration
 
-- Uses service account authentication
+- Uses OAuth 2.0 authentication with automatic token refresh
 - Searches for emails with "Family/お荷物滞留お知らせメール" label
 - Processes only unread emails
 - Marks emails as read after processing
+- Handles token expiration gracefully with refresh_token mechanism
 
 ### LINE Integration
 
