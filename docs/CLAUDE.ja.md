@@ -99,19 +99,29 @@ uv run python scripts/test_local.py
 
 | Secret名 | 説明 | 取得方法 |
 |----------|------|----------|
-| `GOOGLE_OAUTH_TOKEN` | Google OAuth 2.0認証トークン（base64エンコード） | OAuth認証フロー |
+| `GOOGLE_OAUTH_TOKEN` | refresh_token付きOAuth 2.0認証情報（base64エンコードpickle） | ローカルOAuthフローで生成 |
 | `LINE_CHANNEL_ACCESS_TOKEN` | LINE Messaging API チャンネルトークン | LINE Developers Console |
+| `LINE_CHANNEL_ACCESS_TOKEN_SANDBOX` | LINE Messaging API サンドボックスチャンネルトークン | LINE Developers Console |
 | `LINE_USER_ID` | 通知送信先のLINEユーザーID | LINE Official Account Manager |
+| `LINE_USER_ID_SANDBOX` | サンドボックス通知送信先のLINEユーザーID | LINE Official Account Manager |
 | `SLACK_BOT_TOKEN` | Slack ボットトークン（エラー通知用） | Slack API |
 | `SLACK_CHANNEL_ID` | Slack チャンネルID | Slack |
 
 ### Gmail API設定
 
-1. Google Cloud ConsoleでOAuth 2.0クライアントID作成
-2. Gmail API有効化
-3. デスクトップアプリケーションタイプで認証情報作成
-4. `python scripts/setup_oauth.py <oauth_credentials.json>`でトークン生成
-5. 生成されたbase64トークンをGitHub Secretsに設定
+**OAuth 2.0認証（現在の実装）:**
+
+1. Google Cloud ConsoleでOAuth 2.0クライアント認証情報を作成
+2. Gmail APIを有効化
+3. `scripts/test_local.py`を使用してローカルでOAuthトークンを生成
+4. 生成された`token.pickle`ファイルをbase64エンコード
+5. エンコードしたトークンを`GOOGLE_OAUTH_TOKEN`としてGitHub Secretsに設定
+
+**重要な注意事項:**
+
+- OAuthトークンには期限切れ時の自動更新用refresh_tokenが含まれる
+- refresh_tokenを取得するには`access_type='offline'`が必要
+- GitHub Actionsでは期限切れトークンをrefresh_tokenを使って自動更新する
 
 ### LINE Messaging API設定
 
@@ -176,8 +186,9 @@ uv run python scripts/test_local.py
 ### よくある問題
 
 1. **Gmail API認証エラー**
-   - OAuth 2.0トークンの有効性確認
-   - トークン再生成の実行
+   - `GOOGLE_OAUTH_TOKEN`が期限切れかつrefresh_tokenが不足していないか確認
+   - リフレッシュに失敗した場合は`access_type='offline'`でOAuthトークンを再生成
+   - OAuth クライアント認証情報の設定を確認
 
 2. **LINE通知が届かない**
    - チャンネルアクセストークン確認
@@ -252,6 +263,44 @@ pre-commit run <hook-id>
 - GitHub Secretsを使用
 - テスト時は必ずモックを使用
 - 定期的にアクセストークンを更新
+
+## アーキテクチャノート
+
+### 設定システム
+
+アプリケーションは中央集権的な設定システム（`src/config.py`）を使用し、以下の機能を提供：
+
+- 環境変数の自動読み込み
+- 別々のLINEチャンネルを使用したテスト用サンドボックスモードのサポート
+- Google、LINE、Slack API用の型安全な設定クラスを提供
+- 環境変数選択による本番環境とサンドボックス環境の両方の処理
+
+### Gmail統合
+
+- 自動トークンリフレッシュ機能付きのOAuth 2.0認証を使用
+- 「Family/お荷物滞留お知らせメール」ラベルの付いたメールを検索
+- 未読メールのみを処理
+- 処理後にメールを既読にマーク
+- refresh_tokenメカニズムによりトークン期限切れを適切に処理
+
+### LINE統合
+
+- フォーマットされた通知を送信
+- メール件名、送信者、本文を含む
+- 配信失敗時のエラーハンドリング
+
+### Slack統合
+
+- エラー通知のみ
+- ワークフローの詳細とエラーメッセージを含む
+- トラブルシューティング用のGitHub Actionsリンク
+
+### エラーハンドリング
+
+- 包括的なtry-catchブロック
+- 詳細なエラーログ
+- 失敗時のSlack通知
+- デバッグ用のGitHub Actions出力
 
 ## 参考資料
 
