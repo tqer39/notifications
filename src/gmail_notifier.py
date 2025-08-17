@@ -42,7 +42,25 @@ class GmailNotifier:
 		if missing_padding:
 			token_string += '=' * (4 - missing_padding)
 		token_data = base64.b64decode(token_string.encode('utf-8'))
-		return pickle.loads(token_data)  # type: ignore[no-any-return]
+		creds = pickle.loads(token_data)  # type: ignore[no-any-return]
+
+		# Check if credentials are expired and refresh if possible
+		if not creds.valid:
+			if creds.expired and creds.refresh_token:
+				print('Token expired, attempting to refresh...')
+				try:
+					creds.refresh(Request())
+					print('Token refreshed successfully')
+				except Exception as e:
+					raise ValueError(f'Failed to refresh token: {str(e)}. Please regenerate GOOGLE_OAUTH_TOKEN.') from e
+			else:
+				error_msg = 'Token is expired and cannot be refreshed.'
+				if not creds.refresh_token:
+					error_msg += ' No refresh_token available.'
+				error_msg += ' Please regenerate GOOGLE_OAUTH_TOKEN with offline access.'
+				raise ValueError(error_msg)
+
+		return creds
 
 	def _get_oauth_credentials(self, oauth_credentials_json: str | None, token_file: str) -> Credentials:
 		"""Get or refresh OAuth 2.0 credentials."""
@@ -74,8 +92,8 @@ class GmailNotifier:
 				flow = Flow.from_client_config(creds_info, scopes)
 				flow.redirect_uri = 'urn:ietf:wg:oauth:2.0:oob'  # For desktop apps
 
-				# Get authorization URL
-				auth_url, _ = flow.authorization_url(prompt='consent')
+				# Get authorization URL with offline access to get refresh token
+				auth_url, _ = flow.authorization_url(prompt='consent', access_type='offline')
 				print(f'Please visit this URL to authorize the application: {auth_url}')
 
 				# Get authorization code from user
