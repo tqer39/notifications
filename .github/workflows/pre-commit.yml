@@ -30,3 +30,15 @@ jobs:
       - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
         with:
           extra_args: -a --show-diff-on-failure
+
+  workflow-result:
+    needs: [pre-commit]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: {}
+    steps:
+      - name: Check workflow result
+        env:
+          RESULT: ${{ needs.pre-commit.result }}
+        run: test "$RESULT" = success
